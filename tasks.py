@@ -3,11 +3,13 @@ Tasks for maintaining the project.
 
 Execute 'invoke --list' for guidance on using Invoke
 """
+
+import pathlib
 import shutil
 from pathlib import Path
 import webbrowser
 
-from invoke import task
+from invoke import task, Context
 
 Path().expanduser()
 
@@ -27,7 +29,7 @@ PYTHON_DIRS = [str(d) for d in [SOURCE_DIR, TEST_DIR]]
 JOINED_PYTHON_DIRS = " ".join(PYTHON_DIRS)
 
 
-def _delete_file(file):
+def _delete_file(file: pathlib.Path) -> None:
     try:
         file.unlink(missing_ok=True)
     except TypeError:
@@ -39,7 +41,7 @@ def _delete_file(file):
 
 
 @task()
-def format(c):
+def format(c):  # pylint: disable=unused-argument,redefined-builtin
     """
     Format code
     """
@@ -62,7 +64,7 @@ def lint_mypy(c):
 
 
 @task(pre=[lint_black, lint_pylint, lint_mypy])
-def lint(c):
+def lint(c):  # pylint: disable=unused-argument
     """
     Lint code
     """
@@ -93,7 +95,7 @@ def coverage(c, publish=False):
 
 
 @task
-def docs(c):
+def docs(c):  # type: ignore
     """
     Generate documentation
     """
@@ -102,11 +104,11 @@ def docs(c):
 
 
 @task
-def clean_docs(c):
+def clean_docs(c):  # pylint: disable=unused-argument
     """
     Clean up files from documentation builds
     """
-    c.run("rm -fr {}".format(DOCS_BUILD_DIR))
+    shutil.rmtree(DOCS_BUILD_DIR, ignore_errors=True)
 
 
 @task
@@ -114,9 +116,9 @@ def clean_build(c):
     """
     Clean up files from package building
     """
-    c.run("rm -fr build/")
-    c.run("rm -fr dist/")
-    c.run("rm -fr .eggs/")
+    shutil.rmtree("build", ignore_errors=True)
+    shutil.rmtree("dist", ignore_errors=True)
+    shutil.rmtree(".eggs", ignore_errors=True)
     c.run("find . -name '*.egg-info' -exec rm -fr {} +")
     c.run("find . -name '*.egg' -exec rm -f {} +")
 
@@ -128,12 +130,11 @@ def clean_python(c):
     """
     c.run("find . -name '*.pyc' -exec rm -f {} +")
     c.run("find . -name '*.pyo' -exec rm -f {} +")
-    c.run("find . -name '*~' -exec rm -f {} +")
     c.run("find . -name '__pycache__' -exec rm -fr {} +")
 
 
 @task
-def clean_tests(c):
+def clean_tests(c):  # pylint: disable=unused-argument
     """
     Clean up files from testing
     """
@@ -143,7 +144,7 @@ def clean_tests(c):
 
 
 @task(pre=[clean_build, clean_python, clean_tests, clean_docs])
-def clean(c):
+def clean(_c):  # pylint: disable=unused-argument
     """
     Runs all clean sub-tasks
     """
