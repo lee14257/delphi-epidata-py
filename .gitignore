@@ -1,6 +1,9 @@
-.vscode
 .mypy_cache
 *.pyc
 __pycache__
 /venv
 /docs/_build
+.coverage
+.pytest_cache
+*.egg-info
+/dist

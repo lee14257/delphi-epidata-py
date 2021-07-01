@@ -21,6 +21,6 @@ setuptools.setup(
         "Topic :: Scientific/Engineering :: Bio-Informatics",
     ],
     python_requires='>=3.6',
-    install_requires=pathlib.Path('requirements.txt').read_text().split('\n'),
+    install_requires=[f.strip() for f in pathlib.Path('requirements.txt').read_text().split('\n') if f],
     # package_data={'delphi_epidata': []}
 )

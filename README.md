@@ -15,11 +15,17 @@ source ./venv/bin/activate
 pip install --use-feature=2020-resolver -r requirements.txt -r requirements-dev.txt
 ```
 
-### Format Code
-
+### Common Commands
 ```sh
 source ./venv/bin/activate
-inv format
+inv format   # format code
+inv lint     # check linting
+inv docs     # build docs
+inv test     # run unit tests
+inv coverage # run unit tests with coverage
+inv clean    # clean build artifacts
+inv dist     # build distribution packages
+inv release  # upload the current version to pypi
 ```
 
 ### Check Linting

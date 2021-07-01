@@ -1,5 +1,5 @@
 """Fetch data from Delphi's API.
 """
+from ._version import __version__
 
-__version__ = "1.0.0"
 __author__ = "Delphi Group"

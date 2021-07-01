@@ -10,3 +10,5 @@ recommonmark
 sphinx_rtd_theme
 sphinx-autodoc-typehints
 twine
+wheel
+types-requests

@@ -4,13 +4,12 @@ Tasks for maintaining the project.
 Execute 'invoke --list' for guidance on using Invoke
 """
 import shutil
-import platform
+from pathlib import Path
+import webbrowser
 
 from invoke import task
 
-from pathlib import Path
 Path().expanduser()
-import webbrowser
 
 
 ROOT_DIR = Path(__file__).parent
@@ -25,6 +24,7 @@ DOCS_DIR = ROOT_DIR.joinpath("docs")
 DOCS_BUILD_DIR = DOCS_DIR.joinpath("_build")
 DOCS_INDEX = DOCS_BUILD_DIR.joinpath("index.html")
 PYTHON_DIRS = [str(d) for d in [SOURCE_DIR, TEST_DIR]]
+JOINED_PYTHON_DIRS = " ".join(PYTHON_DIRS)
 
 
 def _delete_file(file):
@@ -38,23 +38,34 @@ def _delete_file(file):
             pass
 
 
-@task(help={"check": "Checks if source is formatted without applying changes"})
-def format(c, check=False):
+@task()
+def format(c):
     """
     Format code
     """
-    python_dirs_string = " ".join(PYTHON_DIRS)
-    # Run yapf
-    black_options = "--config pyproject.toml"
-    c.run("black {} {}".format(black_options, python_dirs_string))
+    c.run("black --config pyproject.toml {}".format(JOINED_PYTHON_DIRS))
 
 
 @task
+def lint_black(c):
+    c.run("black --check --config pyproject.toml {}".format(JOINED_PYTHON_DIRS))
+
+
+@task
+def lint_pylint(c):
+    c.run("pylint {}".format(JOINED_PYTHON_DIRS))
+
+
+@task
+def lint_mypy(c):
+    c.run("mypy --ignore-missing-imports {}".format(JOINED_PYTHON_DIRS))
+
+
+@task(pre=[lint_black, lint_pylint, lint_mypy])
 def lint(c):
     """
     Lint code
     """
-    c.run("pylint {}".format(SOURCE_DIR))
 
 
 @task
@@ -62,8 +73,7 @@ def test(c):
     """
     Run tests
     """
-    pty = platform.system() == "Linux"
-    c.run("python {} test".format(SETUP_FILE), pty=pty)
+    c.run("pytest {}".format(TEST_DIR))
 
 
 @task(help={"publish": "Publish the result via coveralls"})
@@ -71,7 +81,7 @@ def coverage(c, publish=False):
     """
     Create coverage report
     """
-    c.run("coverage run --source {} -m pytest".format(SOURCE_DIR))
+    c.run("coverage run --source {} -m pytest".format(TEST_DIR))
     c.run("coverage report")
     if publish:
         # Publish the results via coveralls
@@ -137,7 +147,6 @@ def clean(c):
     """
     Runs all clean sub-tasks
     """
-    pass
 
 
 @task(clean)
