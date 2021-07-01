@@ -31,15 +31,15 @@ jobs:
       - name: Check Formatting
         run: |
           . venv/bin/activate
-          inv lint_black
+          inv lint-black
       - name: Check Linting
         run: |
           . venv/bin/activate
-          inv lint_pylint
+          inv lint-pylint
       - name: Check Types
         run: |
           . venv/bin/activate
-          inv lint_mypy
+          inv lint-mypy
       - name: Test
         run: |
           . venv/bin/activate
