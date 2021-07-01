@@ -70,5 +70,3 @@ class InvalidArgumentException(Exception):
     """
     exception
     """
-
-    pass

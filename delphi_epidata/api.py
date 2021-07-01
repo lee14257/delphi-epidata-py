@@ -2,7 +2,7 @@ from typing import Mapping, Union, cast
 from requests import get, post, Response
 from tenacity import retry, stop_after_attempt
 from ._constants import HTTP_HEADERS, BASE_URL
-from .model import EpiResponse, EpidataCall
+from .model import EpiDataResponse, EpiDataCall
 
 
 @retry(reraise=True, stop=stop_after_attempt(2))  # type: ignore
@@ -24,7 +24,7 @@ class APICaller:
     def __init__(self, base_url: str = BASE_URL) -> None:
         self.base_url = base_url
 
-    def __call__(self, call: EpidataCall) -> EpiResponse:
+    def __call__(self, call: EpiDataCall) -> EpiDataResponse:
         """Request and parse epidata.
 
         We default to GET since it has better caching and logging
@@ -32,6 +32,8 @@ class APICaller:
         long and returns a 414.
         """
         try:
-            return cast(EpiResponse, _request_with_retry(self.base_url + call.endpoint, call.formatted_params).json())
+            return cast(
+                EpiDataResponse, _request_with_retry(self.base_url + call.endpoint, call.formatted_params).json()
+            )
         except Exception as e:  # pylint: disable=broad-except
             return {"result": 0, "message": f"error: {e}", "epidata": []}

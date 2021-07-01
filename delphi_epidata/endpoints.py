@@ -280,14 +280,7 @@ def covidcast(
     format: Optional[str] = None,  # pylint: disable=redefined-builtin
 ) -> EpiDataCall:
     """Fetch Delphi's COVID-19 Surveillance Streams"""
-    if (
-        data_source is None
-        or signals is None
-        or time_type is None
-        or geo_type is None
-        or time_values is None
-        or geo_value is None
-    ):
+    if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_value))):
         raise InvalidArgumentException(
             "`data_source`, `signals`, `time_type`, `geo_type`, `time_values`, and `geo_value` are all required"
         )
@@ -378,17 +371,10 @@ def covidcast_nowcast(
 ) -> EpiDataCall:
     """Fetch Delphi's COVID-19 Nowcast sensors"""
 
-    if (
-        data_source is None
-        or signals is None
-        or time_type is None
-        or geo_type is None
-        or time_values is None
-        or geo_value is None
-        or sensor_names is None
-    ):
+    if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_value, sensor_names))):
         raise InvalidArgumentException(
-            "`data_source`, `signals`, `sensor_names`, `time_type`, `geo_type`, `time_values`, and `geo_value` are all required"
+            "`data_source`, `signals`, `sensor_names`, `time_type`, `geo_type`, `time_values`, and `geo_value`"
+            + " are all required"
         )
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")

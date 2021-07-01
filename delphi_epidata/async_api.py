@@ -2,11 +2,11 @@ from typing import Dict, List, Tuple, cast
 import asyncio
 from aiohttp import TCPConnector, ClientSession
 
-from .model import EpiDataResponse, EpidataCall
+from .model import EpiDataResponse, EpiDataCall
 from ._constants import BASE_URL, HTTP_HEADERS
 
 
-async def _async_get(base_url: str, call: EpidataCall, session: ClientSession) -> Tuple[Dict, EpidataCall]:
+async def _async_get(base_url: str, call: EpiDataCall, session: ClientSession) -> Tuple[Dict, EpiDataCall]:
     """Helper function to make Epidata GET requests."""
     async with session.get(base_url + call.endpoint, params=call.formatted_params) as response:
         response.raise_for_status()
@@ -19,21 +19,21 @@ class AsyncAPICaller:
     """
 
     base_url: str
-    _queue: List[EpidataCall]
+    _queue: List[EpiDataCall]
 
     def __init__(self, base_url: str = BASE_URL) -> None:
         self.base_url = base_url
         self._queue = []
 
-    def push(self, call: EpidataCall) -> None:
+    def push(self, call: EpiDataCall) -> None:
         self._queue.append(call)
 
-    def __call__(self, batch_size: int = 50) -> List[Tuple[EpiDataResponse, EpidataCall]]:
+    def __call__(self, batch_size: int = 50) -> List[Tuple[EpiDataResponse, EpiDataCall]]:
         """Make asynchronous Epidata calls for a list of parameters."""
         q = list(self._queue)
         self._queue.clear()
 
-        async def async_make_calls() -> List[Tuple[EpiDataResponse, EpidataCall]]:
+        async def async_make_calls() -> List[Tuple[EpiDataResponse, EpiDataCall]]:
             """Helper function to asynchronously make and aggregate Epidata GET requests."""
             tasks: List[asyncio.Future] = []
             connector = TCPConnector(limit=batch_size)
@@ -42,7 +42,7 @@ class AsyncAPICaller:
                     task = asyncio.ensure_future(_async_get(self.base_url, call, session))
                     tasks.append(task)
             responses = await asyncio.gather(*tasks)
-            return cast(List[Tuple[EpiDataResponse, EpidataCall]], list(responses))
+            return cast(List[Tuple[EpiDataResponse, EpiDataCall]], list(responses))
 
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(async_make_calls())
