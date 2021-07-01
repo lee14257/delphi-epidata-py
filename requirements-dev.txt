@@ -1,0 +1,12 @@
+mypy
+pylint
+black
+pytest
+invoke
+watchdog
+coverage
+sphinx
+recommonmark
+sphinx_rtd_theme
+sphinx-autodoc-typehints
+twine

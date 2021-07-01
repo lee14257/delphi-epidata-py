@@ -1,0 +1,6 @@
+.vscode
+.mypy_cache
+*.pyc
+__pycache__
+/venv
+/docs/_build
