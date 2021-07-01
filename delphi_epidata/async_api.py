@@ -1,4 +1,4 @@
-from typing import Dict, List, Mapping, Tuple, Union
+from typing import Dict, List, Mapping, Tuple, Union, cast
 import asyncio
 from aiohttp import TCPConnector, ClientSession
 
@@ -36,7 +36,7 @@ class AsyncAPICaller:
 
         async def async_make_calls() -> List[Tuple[Dict, str, Mapping[str, Union[str, int]]]]:
             """Helper function to asynchronously make and aggregate Epidata GET requests."""
-            tasks: List[asyncio.Future[Tuple[Dict, str, Mapping[str, Union[str, int]]]]] = []
+            tasks: List[asyncio.Future] = []
             connector = TCPConnector(limit=batch_size)
             async with ClientSession(connector=connector, headers=HTTP_HEADERS) as session:
                 for endpoint, params in q:
@@ -44,7 +44,7 @@ class AsyncAPICaller:
                     task = asyncio.ensure_future(_async_get(url, params, session))
                     tasks.append(task)
             responses = await asyncio.gather(*tasks)
-            return list(responses)
+            return cast(List[Tuple[Dict, str, Mapping[str, Union[str, int]]]], list(responses))
 
         loop = asyncio.get_event_loop()
         future = asyncio.ensure_future(async_make_calls())
