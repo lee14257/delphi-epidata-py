@@ -1,6 +1,6 @@
 """Fetch data from Delphi's API.
 """
-from ._version import __version__
-from .model import EpiRange, EpiRangeDict
+from ._constants import __version__
+from .model import EpiRange, EpiRangeDict, EpiResponse
 
 __author__ = "Delphi Group"

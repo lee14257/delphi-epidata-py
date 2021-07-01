@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import TypedDict
+from typing import List, TypedDict
 
 
 @dataclass
@@ -21,3 +21,4 @@ class EpiRange:
 
 
 EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
+EpiResponse = TypedDict("EpiResponse", {"result": int, "message": str, "epidata": List})
