@@ -69,7 +69,7 @@ The release consists of multiple steps which can be all done via the GitHub webs
 [mit-url]: https://opensource.org/licenses/MIT
 [github-actions-image]: https://github.com/cmu-delphi/delphi-epidata-py/workflows/ci/badge.svg
 [github-actions-url]: https://github.com/cmu-delphi/delphi-epidata-py/actions
-[pypi-image]: https://pypip.in/version/delphi-epidata/badge.svg
+[pypi-image]: https://img.shields.io/pypi/v/delphi-epidata
 [pypi-url]: https://pypi.python.org/pypi/delphi-epidata/
 [docs-image]: https://readthedocs.org/projects/delphi-epidata/badge/?version=latest
 [docs-url]: https://delphi-epidata.readthedocs.io/en/latest/?badge=latest
