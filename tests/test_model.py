@@ -27,5 +27,4 @@ def test_format_list() -> None:
 
     assert _format_list(["a", "b"]) == "a,b"
     assert _format_list(("a", "b")) == "a,b"
-    assert _format_list({"a", "b"}) == "b,a"
     assert _format_list(["a", 1]) == "a,1"
