@@ -1,5 +1,25 @@
 # Delphi Epidata Python Client
 
+[![License: MIT][mit-image]][mit-url] [![Github Actions][github-actions-image]][github-actions-url] [![PyPi][pypi-image]][pypi-url] [![Read the Docs][docs-image]][docs-url]
+
+## Install
+
+Install from PyPi:
+
+```sh
+pip install delphi-epidata
+```
+
+latest version
+
+```sh
+pip install -e "git+https://github.com/cmu-delphi/delphi-epidata-py.git#egg=delphi_epidata"
+```
+
+## Usage
+
+TODO
+
 ## Development Environment
 
 This project requires a recent version of gnu/make and docker or an installed Python version
@@ -9,6 +29,7 @@ This project requires a recent version of gnu/make and docker or an installed Py
 besides the docker variant a local Python instance can be used.
 
 Prepare virtual environment and install dependencies
+
 ```sh
 python -m venv venv
 source ./venv/bin/activate
@@ -16,6 +37,7 @@ pip install --use-feature=2020-resolver -r requirements.txt -r requirements-dev.
 ```
 
 ### Common Commands
+
 ```sh
 source ./venv/bin/activate
 inv format   # format code
@@ -26,13 +48,6 @@ inv coverage # run unit tests with coverage
 inv clean    # clean build artifacts
 inv dist     # build distribution packages
 inv release  # upload the current version to pypi
-```
-
-### Check Linting
-
-```sh
-source ./venv/bin/activate
-inv format
 ```
 
 ## Release Process
@@ -49,3 +64,12 @@ The release consists of multiple steps which can be all done via the GitHub webs
    1. create docker image and the production system will be notified to pull this update
 1. Once the jobs are completed the new release should be available at https://delphi.cmu.edu within minutes.
 1. Done
+
+[mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
+[mit-url]: https://opensource.org/licenses/MIT
+[github-actions-image]: https://github.com/cmu-delphi/delphi-epidata-py/workflows/ci/badge.svg
+[github-actions-url]: https://github.com/cmu-delphi/delphi-epidata-py/actions
+[pypi-image]: https://pypip.in/version/delphi-epidata/badge.svg
+[pypi-url]: https://pypi.python.org/pypi/delphi-epidata/
+[docs-image]: https://readthedocs.org/projects/delphi-epidata/badge/?version=latest
+[docs-url]: https://delphi-epidata.readthedocs.io/en/latest/?badge=latest
