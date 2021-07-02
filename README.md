@@ -22,12 +22,6 @@ TODO
 
 ## Development Environment
 
-This project requires a recent version of gnu/make and docker or an installed Python version
-
-### Local Python version
-
-besides the docker variant a local Python instance can be used.
-
 Prepare virtual environment and install dependencies
 
 ```sh
@@ -61,8 +55,6 @@ The release consists of multiple steps which can be all done via the GitHub webs
    1. create a git tag
    1. create another [Pull Request](https://github.com/cmu-delphi/delphi-epidata-py/pulls) to merge the changes back to the `dev` branch
    1. create a [GitHub release](https://github.com/cmu-delphi/delphi-epidata-py/releases) with automatically derived release notes
-   1. create docker image and the production system will be notified to pull this update
-1. Once the jobs are completed the new release should be available at https://delphi.cmu.edu within minutes.
 1. Done
 
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
