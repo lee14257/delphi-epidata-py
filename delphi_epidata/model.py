@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-from typing import Iterable, List, Mapping, TypedDict, Union
+from enum import Enum
+from urllib.parse import urlencode
+from typing import Iterable, List, Mapping, Optional, Tuple, TypedDict, Union
 
 
 @dataclass
@@ -43,6 +45,17 @@ def _format_list(values: Union[EpiRangeLike, Iterable[EpiRangeLike]]) -> str:
     return ",".join([_format_item(value) for value in list_values])
 
 
+class EpiDataFormatType(str, Enum):
+    """
+    possible formatting options for API calls
+    """
+
+    json = "json"
+    classic = "classic"
+    csv = "csv"
+    jsonl = "jsonl"
+
+
 @dataclass
 class EpiDataCall:
     """
@@ -58,12 +71,36 @@ class EpiDataCall:
     parameters for the call
     """
 
-    @property
-    def formatted_params(self) -> Mapping[str, str]:
+    def _full_url(self, base_url: str) -> str:
+        """ """
+        return f"{base_url}{self.endpoint}/"
+
+    def __call__(
+        self, base_url: str, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
+    ) -> Tuple[str, Mapping[str, str]]:
         """
-        format the parameters such that they can be transferred
+        format this call into a [URL, Params] tuple
         """
-        return {k: _format_list(v) for k, v in self.params.items() if v is not None}
+        all_params = dict(self.params)
+        if format_type and format_type != EpiDataFormatType.classic:
+            all_params["format"] = format_type
+        if fields:
+            all_params["fields"] = fields
+        formatted_params = {k: _format_list(v) for k, v in all_params.items() if v is not None}
+        full_url = self._full_url(base_url)
+        return full_url, formatted_params
+
+    def request_url(
+        self, base_url: str, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
+    ) -> str:
+        """
+        format this call into a full HTTP request url with encoded parameters
+        """
+        u, p = self(base_url, format_type, fields)
+        query = urlencode(p)
+        if query:
+            return f"{u}?{query}"
+        return u
 
 
 class InvalidArgumentException(Exception):

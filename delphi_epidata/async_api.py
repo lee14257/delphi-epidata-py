@@ -1,16 +1,10 @@
-from typing import Dict, List, Tuple, cast
+from json import loads
+from typing import AsyncGenerator, Callable, Coroutine, Dict, Iterable, List, Optional, cast
 import asyncio
-from aiohttp import TCPConnector, ClientSession
+from aiohttp import TCPConnector, ClientSession, ClientResponse
 
-from .model import EpiDataResponse, EpiDataCall
+from .model import EpiDataFormatType, EpiDataResponse, EpiDataCall
 from ._constants import BASE_URL, HTTP_HEADERS
-
-
-async def _async_get(base_url: str, call: EpiDataCall, session: ClientSession) -> Tuple[Dict, EpiDataCall]:
-    """Helper function to make Epidata GET requests."""
-    async with session.get(base_url + call.endpoint, params=call.formatted_params) as response:
-        response.raise_for_status()
-    return await response.json(), call
 
 
 class AsyncAPICaller:
@@ -19,31 +13,122 @@ class AsyncAPICaller:
     """
 
     base_url: str
-    _queue: List[EpiDataCall]
 
-    def __init__(self, base_url: str = BASE_URL) -> None:
+    def __init__(self, session: ClientSession, base_url: str = BASE_URL) -> None:
         self.base_url = base_url
-        self._queue = []
+        self.session = session
 
-    def push(self, call: EpiDataCall) -> None:
-        self._queue.append(call)
+    @staticmethod
+    async def create(base_url: str = BASE_URL, batch_size: int = 50) -> "AsyncAPICaller":
+        connector = TCPConnector(limit=batch_size)
+        async with ClientSession(connector=connector, headers=HTTP_HEADERS) as session:
+            return AsyncAPICaller(session, base_url)
 
-    def __call__(self, batch_size: int = 50) -> List[Tuple[EpiDataResponse, EpiDataCall]]:
-        """Make asynchronous Epidata calls for a list of parameters."""
-        q = list(self._queue)
-        self._queue.clear()
+    async def _call(
+        self,
+        call: EpiDataCall,
+        format_type: Optional[EpiDataFormatType] = None,
+        fields: Optional[Iterable[str]] = None,
+    ) -> ClientResponse:
+        url, params = call(self.base_url, format_type, fields)
+        async with self.session.get(url, params=params) as response:
+            return response
 
-        async def async_make_calls() -> List[Tuple[EpiDataResponse, EpiDataCall]]:
-            """Helper function to asynchronously make and aggregate Epidata GET requests."""
+    async def __call__(self, call: EpiDataCall, fields: Optional[Iterable[str]] = None) -> EpiDataResponse:
+        """Request and parse epidata."""
+        try:
+            response = await self._call(call, fields=fields)
+            return cast(EpiDataResponse, await response.json())
+        except Exception as e:  # pylint: disable=broad-except
+            return {"result": 0, "message": f"error: {e}", "epidata": []}
+
+    async def json(self, call: EpiDataCall, fields: Optional[Iterable[str]] = None) -> List[Dict]:
+        """Request and parse epidata in JSON format"""
+        response = await self._call(call, EpiDataFormatType.json, fields=fields)
+        response.raise_for_status()
+        return cast(List[Dict], await response.json())
+
+    async def csv(self, call: EpiDataCall, fields: Optional[Iterable[str]] = None) -> str:
+        """Request and parse epidata in CSV format"""
+        response = await self._call(call, EpiDataFormatType.csv, fields=fields)
+        response.raise_for_status()
+        return await response.text()
+
+    async def jsonl(self, call: EpiDataCall, fields: Optional[Iterable[str]] = None) -> AsyncGenerator[Dict, None]:
+        """Request and streams epidata rows"""
+        url, params = call(self.base_url, EpiDataFormatType.jsonl, fields)
+        async with self.session.get(url, params=params, stream=True) as response:
+            response.raise_for_status()
+            async for line in response.content:
+                yield loads(line)
+
+    @staticmethod
+    def _batch_call(
+        call_api: Callable[["AsyncAPICaller", EpiDataCall], Coroutine],
+        calls: Iterable[EpiDataCall],
+        batch_size: int = 50,
+        base_url: str = BASE_URL,
+    ) -> List:
+        loop = asyncio.get_event_loop()
+
+        async def impl() -> List:
             tasks: List[asyncio.Future] = []
             connector = TCPConnector(limit=batch_size)
             async with ClientSession(connector=connector, headers=HTTP_HEADERS) as session:
-                for call in q:
-                    task = asyncio.ensure_future(_async_get(self.base_url, call, session))
+                api_caller = AsyncAPICaller(session, base_url)
+                for call in calls:
+                    co_routine = call_api(api_caller, call)
+                    task = asyncio.ensure_future(co_routine)
                     tasks.append(task)
-            responses = await asyncio.gather(*tasks)
-            return cast(List[Tuple[EpiDataResponse, EpiDataCall]], list(responses))
+                return list(await asyncio.gather(*tasks))
 
-        loop = asyncio.get_event_loop()
-        future = asyncio.ensure_future(async_make_calls())
+        future = asyncio.ensure_future(impl())
         return loop.run_until_complete(future)
+
+    @staticmethod
+    def batch_call(
+        calls: Iterable[EpiDataCall],
+        fields: Optional[Iterable[str]] = None,
+        batch_size: int = 50,
+        base_url: str = BASE_URL,
+    ) -> List[EpiDataResponse]:
+        """
+        runs the given calls in a batch asynchronously and return their responses
+        """
+
+        def call_api(caller: "AsyncAPICaller", call: EpiDataCall) -> Coroutine:
+            return caller(call, fields)
+
+        return AsyncAPICaller._batch_call(call_api, calls, batch_size, base_url)
+
+    @staticmethod
+    def batch_json(
+        calls: Iterable[EpiDataCall],
+        fields: Optional[Iterable[str]] = None,
+        batch_size: int = 50,
+        base_url: str = BASE_URL,
+    ) -> List[List[Dict]]:
+        """
+        runs the given calls in a batch asynchronously and return their responses
+        """
+
+        def call_api(caller: "AsyncAPICaller", call: EpiDataCall) -> Coroutine:
+            return caller.json(call, fields)
+
+        return AsyncAPICaller._batch_call(call_api, calls, batch_size, base_url)
+
+    @staticmethod
+    def batch_csv(
+        calls: Iterable[EpiDataCall],
+        fields: Optional[Iterable[str]] = None,
+        batch_size: int = 50,
+        base_url: str = BASE_URL,
+    ) -> List[str]:
+        """
+        runs the given calls in a batch asynchronously and return their responses
+        """
+
+        def call_api(caller: "AsyncAPICaller", call: EpiDataCall) -> Coroutine:
+            return caller.csv(call, fields)
+
+        return AsyncAPICaller._batch_call(call_api, calls, batch_size, base_url)

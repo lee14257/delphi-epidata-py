@@ -277,7 +277,6 @@ def covidcast(
     as_of: Union[None, str, int] = None,
     issues: Optional[EpiRangeParam] = None,
     lag: Optional[int] = None,
-    format: Optional[str] = None,  # pylint: disable=redefined-builtin
 ) -> EpiDataCall:
     """Fetch Delphi's COVID-19 Surveillance Streams"""
     if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_value))):
@@ -296,7 +295,6 @@ def covidcast(
         as_of=as_of,
         issues=issues,
         lag=lag,
-        format=format,
     )
     if isinstance(geo_value, (list, tuple)):
         params["geo_values"] = ",".join(geo_value)
@@ -367,7 +365,6 @@ def covidcast_nowcast(
     as_of: Union[None, int, str] = None,
     issues: Optional[EpiRangeParam] = None,
     lag: Optional[int] = None,
-    format: Optional[str] = None,  # pylint: disable=redefined-builtin
 ) -> EpiDataCall:
     """Fetch Delphi's COVID-19 Nowcast sensors"""
 
@@ -389,7 +386,6 @@ def covidcast_nowcast(
         as_of=as_of,
         issues=issues,
         lag=lag,
-        format=format,
     )
     if isinstance(geo_value, (list, tuple)):
         params["geo_values"] = ",".join(geo_value)
