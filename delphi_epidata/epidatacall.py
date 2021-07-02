@@ -37,11 +37,20 @@ class EpiDataCall:
     """
 
     def _full_url(self, base_url: str) -> str:
-        """ """
-        return f"{base_url}{self.endpoint}/"
+        """
+        combines the endpoint with the given base url
+        """
+        url = base_url
+        if not url.endswith("/"):
+            url += "/"
+        url += self.endpoint
+        return url
 
     def request_arguments(
-        self, base_url: str, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
+        self,
+        base_url: str = BASE_URL,
+        format_type: Optional[EpiDataFormatType] = None,
+        fields: Optional[Iterable[str]] = None,
     ) -> Tuple[str, Mapping[str, str]]:
         """
         format this call into a [URL, Params] tuple
@@ -56,7 +65,10 @@ class EpiDataCall:
         return full_url, formatted_params
 
     def request_url(
-        self, base_url: str, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
+        self,
+        base_url: str = BASE_URL,
+        format_type: Optional[EpiDataFormatType] = None,
+        fields: Optional[Iterable[str]] = None,
     ) -> str:
         """
         format this call into a full HTTP request url with encoded parameters
@@ -81,12 +93,7 @@ class EpiDataCall:
     def classic(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[Session] = None
     ) -> EpiDataResponse:
-        """Request and parse epidata.
-
-        We default to GET since it has better caching and logging
-        capabilities, but fall back to POST if the request is too
-        long and returns a 414.
-        """
+        """Request and parse epidata in CLASSIC message format."""
         try:
             response = self._call(base_url, None, fields, session)
             return cast(EpiDataResponse, response.json())
@@ -96,6 +103,7 @@ class EpiDataCall:
     def __call__(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[Session] = None
     ) -> EpiDataResponse:
+        """Request and parse epidata in CLASSIC message format."""
         return self.classic(fields, base_url, session)
 
     def json(
@@ -137,7 +145,7 @@ class EpiDataCall:
     async def async_classic(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[ClientSession] = None
     ) -> EpiDataResponse:
-        """Request and parse epidata."""
+        """Async Request and parse epidata in CLASSIC message format."""
         try:
             response = await self._async_call(base_url, None, fields, session)
             return cast(EpiDataResponse, await response.json())
@@ -152,7 +160,7 @@ class EpiDataCall:
     async def async_json(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[ClientSession] = None
     ) -> List[Dict]:
-        """Request and parse epidata in JSON format"""
+        """Async Request and parse epidata in JSON format"""
         response = await self._async_call(base_url, EpiDataFormatType.json, fields, session)
         response.raise_for_status()
         return cast(List[Dict], await response.json())
@@ -160,7 +168,7 @@ class EpiDataCall:
     async def async_csv(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[ClientSession] = None
     ) -> str:
-        """Request and parse epidata in CSV format"""
+        """Async Request and parse epidata in CSV format"""
         response = await self._async_call(base_url, EpiDataFormatType.csv, fields, session)
         response.raise_for_status()
         return await response.text()
@@ -168,7 +176,7 @@ class EpiDataCall:
     async def async_jsonl(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[ClientSession] = None
     ) -> AsyncGenerator[Dict, None]:
-        """Request and streams epidata rows"""
+        """Async Request and streams epidata rows"""
         response = await self._async_call(base_url, EpiDataFormatType.jsonl, fields, session)
         response.raise_for_status()
         async for line in response.content:

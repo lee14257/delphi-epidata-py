@@ -1,4 +1,5 @@
-from typing import Callable, Iterable, Mapping, Optional, Union
+from enum import Enum
+from typing import Iterable, Mapping, Optional, Union
 
 from aiohttp import ClientSession, ClientResponse
 from requests import Response, Session
@@ -12,6 +13,8 @@ def format_item(value: EpiRangeLike) -> str:
     """Cast values and/or range to a string."""
     if isinstance(value, dict) and "from" in value and "to" in value:
         return f"{value['from']}-{value['to']}"
+    if isinstance(value, Enum):
+        return str(value.value)
     return str(value)
 
 

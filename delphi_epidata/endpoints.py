@@ -14,7 +14,7 @@ def fluview(
         raise InvalidArgumentException("`regions` and `epiweeks` are both required")
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-    return EpiDataCall("fluview", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag, auth=auth))
+    return EpiDataCall("fluview/", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag, auth=auth))
 
 
 def fluview_meta() -> EpiDataCall:
@@ -30,7 +30,7 @@ def fluview_clinical(
         raise InvalidArgumentException("`regions` and `epiweeks` are both required")
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-    return EpiDataCall("fluview_clinical", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
+    return EpiDataCall("fluview_clinical/", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
 
 
 def flusurv(
@@ -42,7 +42,7 @@ def flusurv(
         raise InvalidArgumentException("`locations` and `epiweeks` are both required")
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-    return EpiDataCall("flusurv", dict(locations=locations, epiweeks=epiweeks, issues=issues, lag=lag))
+    return EpiDataCall("flusurv/", dict(locations=locations, epiweeks=epiweeks, issues=issues, lag=lag))
 
 
 def paho_dengue(
@@ -54,7 +54,7 @@ def paho_dengue(
         raise InvalidArgumentException("`regions` and `epiweeks` are both required")
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-    return EpiDataCall("paho_dengue", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
+    return EpiDataCall("paho_dengue/", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
 
 
 def ecdc_ili(
@@ -65,7 +65,7 @@ def ecdc_ili(
         raise InvalidArgumentException("`regions` and `epiweeks` are both required")
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-    return EpiDataCall("ecdc_ili", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
+    return EpiDataCall("ecdc_ili/", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
 
 
 def kcdc_ili(
@@ -76,21 +76,21 @@ def kcdc_ili(
         raise InvalidArgumentException("`regions` and `epiweeks` are both required")
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-    return EpiDataCall("kcdc_ili", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
+    return EpiDataCall("kcdc_ili/", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
 
 
 def gft(locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall:
     """Fetch Google Flu Trends data."""
     if locations is None or epiweeks is None:
         raise InvalidArgumentException("`locations` and `epiweeks` are both required")
-    return EpiDataCall("gft", dict(locations=locations, epiweeks=epiweeks))
+    return EpiDataCall("gft/", dict(locations=locations, epiweeks=epiweeks))
 
 
 def ght(auth: str, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> EpiDataCall:
     """Fetch Google Health Trends data."""
     if auth is None or locations is None or epiweeks is None or query is None:
         raise InvalidArgumentException("`auth`, `locations`, `epiweeks`, and `query` are all required")
-    return EpiDataCall("ght", dict(auth=auth, locations=locations, epiweeks=epiweeks, query=query))
+    return EpiDataCall("ght/", dict(auth=auth, locations=locations, epiweeks=epiweeks, query=query))
 
 
 def twitter(
@@ -102,7 +102,7 @@ def twitter(
         raise InvalidArgumentException("`auth` and `locations` are both required")
     if not (dates is None) ^ (epiweeks is None):
         raise InvalidArgumentException("exactly one of `dates` and `epiweeks` is required")
-    return EpiDataCall("twitter", dict(auth=auth, locations=locations, dates=dates, epiweeks=epiweeks))
+    return EpiDataCall("twitter/", dict(auth=auth, locations=locations, dates=dates, epiweeks=epiweeks))
 
 
 def wiki(
@@ -118,7 +118,7 @@ def wiki(
         raise InvalidArgumentException("`articles` is required")
     if not (dates is None) ^ (epiweeks is None):
         raise InvalidArgumentException("exactly one of `dates` and `epiweeks` is required")
-    return EpiDataCall("wiki", dict(articles=articles, dates=dates, epiweeks=epiweeks, hours=hours, language=language))
+    return EpiDataCall("wiki/", dict(articles=articles, dates=dates, epiweeks=epiweeks, hours=hours, language=language))
 
 
 def cdc(auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> EpiDataCall:
@@ -127,7 +127,7 @@ def cdc(auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> EpiDataCa
     if auth is None or epiweeks is None or locations is None:
         raise InvalidArgumentException("`auth`, `epiweeks`, and `locations` are all required")
 
-    return EpiDataCall("cdc", dict(auth=auth, epiweeks=epiweeks, locations=locations))
+    return EpiDataCall("cdc/", dict(auth=auth, epiweeks=epiweeks, locations=locations))
 
 
 def quidel(auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> EpiDataCall:
@@ -136,7 +136,7 @@ def quidel(auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> EpiDat
     if auth is None or epiweeks is None or locations is None:
         raise InvalidArgumentException("`auth`, `epiweeks`, and `locations` are all required")
 
-    return EpiDataCall("quidel", dict(auth=auth, epiweeks=epiweeks, locations=locations))
+    return EpiDataCall("quidel/", dict(auth=auth, epiweeks=epiweeks, locations=locations))
 
 
 def norostat(auth: str, location: str, epiweeks: EpiRangeParam) -> EpiDataCall:
@@ -144,7 +144,7 @@ def norostat(auth: str, location: str, epiweeks: EpiRangeParam) -> EpiDataCall:
 
     if auth is None or location is None or epiweeks is None:
         raise InvalidArgumentException("`auth`, `location`, and `epiweeks` are all required")
-    return EpiDataCall("norostat", dict(auth=auth, epiweeks=epiweeks, location=location))
+    return EpiDataCall("norostat/", dict(auth=auth, epiweeks=epiweeks, location=location))
 
 
 def meta_norostat(auth: str) -> EpiDataCall:
@@ -152,7 +152,7 @@ def meta_norostat(auth: str) -> EpiDataCall:
 
     if auth is None:
         raise InvalidArgumentException("`auth` is required")
-    return EpiDataCall("meta_norostat", dict(auth=auth))
+    return EpiDataCall("meta_norostat/", dict(auth=auth))
 
 
 def afhsb(auth: str, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam) -> EpiDataCall:
@@ -187,7 +187,7 @@ def afhsb(auth: str, locations: StringParam, epiweeks: EpiRangeParam, flu_types:
         if not flu_type in valid_flu_types:
             raise InvalidArgumentException(flu_exception.format(flu_type))
 
-    return EpiDataCall("afhsb", dict(auth=auth, locations=locations, epiweeks=epiweeks, flu_types=flu_types))
+    return EpiDataCall("afhsb/", dict(auth=auth, locations=locations, epiweeks=epiweeks, flu_types=flu_types))
 
 
 def meta_afhsb(auth: str) -> EpiDataCall:
@@ -196,7 +196,7 @@ def meta_afhsb(auth: str) -> EpiDataCall:
     if auth is None:
         raise InvalidArgumentException("`auth` is required")
 
-    return EpiDataCall("meta_afhsb", dict(auth=auth))
+    return EpiDataCall("meta_afhsb/", dict(auth=auth))
 
 
 def nidss_flu(
@@ -209,7 +209,7 @@ def nidss_flu(
     if issues is not None and lag is not None:
         raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
 
-    return EpiDataCall("nidss_flu", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
+    return EpiDataCall("nidss_flu/", dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag))
 
 
 def nidss_dengue(locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall:
@@ -218,7 +218,7 @@ def nidss_dengue(locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall
     if locations is None or epiweeks is None:
         raise InvalidArgumentException("`locations` and `epiweeks` are both required")
 
-    return EpiDataCall("nidss_dengue", dict(locations=locations, epiweeks=epiweeks))
+    return EpiDataCall("nidss_dengue/", dict(locations=locations, epiweeks=epiweeks))
 
 
 def delphi(system: str, epiweek: Union[int, str]) -> EpiDataCall:
@@ -226,7 +226,7 @@ def delphi(system: str, epiweek: Union[int, str]) -> EpiDataCall:
 
     if system is None or epiweek is None:
         raise InvalidArgumentException("`system` and `epiweek` are both required")
-    return EpiDataCall("delphi", dict(system=system, epiweek=epiweek))
+    return EpiDataCall("delphi/", dict(system=system, epiweek=epiweek))
 
 
 def sensors(auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall:
@@ -234,7 +234,7 @@ def sensors(auth: str, names: StringParam, locations: StringParam, epiweeks: Epi
 
     if auth is None or names is None or locations is None or epiweeks is None:
         raise InvalidArgumentException("`auth`, `names`, `locations`, and `epiweeks` are all required")
-    return EpiDataCall("sensors", dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks))
+    return EpiDataCall("sensors/", dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks))
 
 
 def dengue_sensors(auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall:
@@ -243,7 +243,7 @@ def dengue_sensors(auth: str, names: StringParam, locations: StringParam, epiwee
     if auth is None or names is None or locations is None or epiweeks is None:
         raise InvalidArgumentException("`auth`, `names`, `locations`, and `epiweeks` are all required")
 
-    return EpiDataCall("dengue_sensors", dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks))
+    return EpiDataCall("dengue_sensors/", dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks))
 
 
 def nowcast(locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall:
@@ -252,7 +252,7 @@ def nowcast(locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall:
     if locations is None or epiweeks is None:
         raise InvalidArgumentException("`locations` and `epiweeks` are both required")
 
-    return EpiDataCall("nowcast", dict(locations=locations, epiweeks=epiweeks))
+    return EpiDataCall("nowcast/", dict(locations=locations, epiweeks=epiweeks))
 
 
 def dengue_nowcast(locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCall:
@@ -260,12 +260,12 @@ def dengue_nowcast(locations: StringParam, epiweeks: EpiRangeParam) -> EpiDataCa
 
     if locations is None or epiweeks is None:
         raise InvalidArgumentException("`locations` and `epiweeks` are both required")
-    return EpiDataCall("dengue_nowcast", dict(locations=locations, epiweeks=epiweeks))
+    return EpiDataCall("dengue_nowcast/", dict(locations=locations, epiweeks=epiweeks))
 
 
 def meta() -> EpiDataCall:
     """Fetch API metadata."""
-    return EpiDataCall("meta", {})
+    return EpiDataCall("meta/", {})
 
 
 def covidcast(
@@ -302,12 +302,12 @@ def covidcast(
     else:
         params["geo_value"] = geo_value
 
-    return EpiDataCall("covidcast", params)
+    return EpiDataCall("covidcast/", params)
 
 
 def covidcast_meta() -> EpiDataCall:
     """Fetch Delphi's COVID-19 Surveillance Streams metadata"""
-    return EpiDataCall("covidcast_meta", {})
+    return EpiDataCall("covidcast_meta/", {})
 
 
 def covid_hosp(
@@ -320,7 +320,7 @@ def covid_hosp(
 
     if states is None or dates is None:
         raise InvalidArgumentException("`states` and `dates` are both required")
-    return EpiDataCall("covid_hosp", dict(states=states, dates=dates, issues=issues, as_of=as_of))
+    return EpiDataCall("covid_hosp/", dict(states=states, dates=dates, issues=issues, as_of=as_of))
 
 
 def covid_hosp_facility(
@@ -332,7 +332,7 @@ def covid_hosp_facility(
         raise InvalidArgumentException("`hospital_pks` and `collection_weeks` are both required")
 
     return EpiDataCall(
-        "covid_hosp_facility",
+        "covid_hosp_facility/",
         dict(hospital_pks=hospital_pks, collection_weeks=collection_weeks, publication_dates=publication_dates),
     )
 
@@ -350,7 +350,7 @@ def covid_hosp_facility_lookup(
         raise InvalidArgumentException("one of `state`, `ccn`, `city`, `zip`, or `fips_code` is required")
 
     return EpiDataCall(
-        "covid_hosp_facility_lookup",
+        "covid_hosp_facility_lookup/",
         dict(state=state, ccn=ccn, city=city, zip=zip, fips_code=fips_code),
     )
 
@@ -393,4 +393,4 @@ def covidcast_nowcast(
     else:
         params["geo_value"] = geo_value
 
-    return EpiDataCall("covidcast_nowcast", params)
+    return EpiDataCall("covidcast_nowcast/", params)
