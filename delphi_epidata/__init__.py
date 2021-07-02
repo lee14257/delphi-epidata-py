@@ -4,13 +4,13 @@ from ._constants import __version__
 from .model import (
     EpiRange,
     EpiRangeDict,
-    EpiDataCall,
     EpiDataResponse,
     EpiRangeLike,
     InvalidArgumentException,
     EpiRangeParam,
     IntParam,
     StringParam,
+    EpiDataFormatType,
 )
 from .endpoints import (
     afhsb,
@@ -45,7 +45,7 @@ from .endpoints import (
     twitter,
     wiki,
 )
-from .async_api import AsyncAPICaller
-from .api import APICaller
+from .epidatacall import EpiDataCall
+from .async_batch import batch_call, batch_csv, batch_json
 
 __author__ = "Delphi Group"

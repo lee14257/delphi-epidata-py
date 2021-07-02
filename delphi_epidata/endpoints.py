@@ -1,5 +1,6 @@
 from typing import Iterable, Optional, Union
-from .model import EpiDataCall, EpiRangeParam, InvalidArgumentException, StringParam, IntParam
+from .model import EpiRangeParam, InvalidArgumentException, StringParam, IntParam
+from .epidatacall import EpiDataCall
 
 
 def fluview(
