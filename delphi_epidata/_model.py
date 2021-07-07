@@ -70,6 +70,10 @@ def format_list(values: Union[EpiRangeLike, Iterable[EpiRangeLike]]) -> str:
 
 
 class AEpiDataCall:
+    """
+    base epidata call class
+    """
+
     def __init__(
         self,
         base_url: str,

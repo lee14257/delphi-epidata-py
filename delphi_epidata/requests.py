@@ -30,6 +30,10 @@ def _request_with_retry(
 
 
 class EpiDataCall(AEpiDataCall):
+    """
+    epidata call representation
+    """
+
     def __init__(
         self,
         base_url: str,

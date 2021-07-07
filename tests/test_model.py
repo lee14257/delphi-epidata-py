@@ -1,4 +1,4 @@
-from delphi_epidata.model import EpiRange, format_item, format_list
+from delphi_epidata._model import EpiRange, format_item, format_list
 
 
 def test_epirange() -> None:

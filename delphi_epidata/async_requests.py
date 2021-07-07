@@ -27,6 +27,10 @@ async def _async_request(
 
 
 class EpiDataAsyncCall(AEpiDataCall):
+    """
+    async version of an epidata call
+    """
+
     def __init__(
         self,
         base_url: str,
