@@ -12,40 +12,6 @@ from .model import (
     StringParam,
     EpiDataFormatType,
 )
-from .endpoints import (
-    afhsb,
-    cdc,
-    covid_hosp,
-    covid_hosp_facility,
-    covid_hosp_facility_lookup,
-    covidcast,
-    covidcast_meta,
-    covidcast_nowcast,
-    delphi,
-    dengue_nowcast,
-    dengue_sensors,
-    ecdc_ili,
-    flusurv,
-    fluview,
-    fluview_clinical,
-    fluview_meta,
-    gft,
-    ght,
-    kcdc_ili,
-    meta,
-    meta_afhsb,
-    meta_norostat,
-    nidss_dengue,
-    nidss_flu,
-    norostat,
-    nowcast,
-    paho_dengue,
-    quidel,
-    sensors,
-    twitter,
-    wiki,
-)
-from .epidatacall import EpiDataCall
-from .async_batch import batch_call, batch_csv, batch_json
+from .epidatacall import EpiDataCSV, EpiDataClassic, EpiDataDataFrame, EpiDataIterator, EpiDataJSON
 
 __author__ = "Delphi Group"

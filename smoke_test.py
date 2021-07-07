@@ -1,18 +1,19 @@
 from delphi_epidata.model import EpiRange
-from delphi_epidata import covidcast
+from delphi_epidata import EpiDataClassic, EpiDataCSV, EpiDataDataFrame, EpiDataIterator, EpiDataJSON
 
-apicall = covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
-classic = apicall.classic()
+classic = EpiDataClassic().covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
 print(classic)
 
-r = apicall.csv()
+r = EpiDataCSV().covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
 print(r[0:100])
 
-data = apicall.json()
+data = EpiDataJSON().covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
 print(data[0])
 
-df = apicall.df()
+df = EpiDataDataFrame().covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
 print(df.columns)
 
-for row in apicall.iter():
+for row in EpiDataIterator().covidcast(
+    "fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us"
+):
     print(row)
