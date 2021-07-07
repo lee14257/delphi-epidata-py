@@ -1,7 +1,7 @@
-from delphi_epidata.model import EpiRange
-from delphi_epidata import covidcast
+from delphi_epidata.requests import Epidata
 
-apicall = covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
+apicall = Epidata.covidcast("fb-survey", "smoothed_cli", "day", "nation", Epidata.range(20210405, 20210410), "us")
+
 classic = apicall.classic()
 print(classic)
 
