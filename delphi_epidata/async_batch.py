@@ -1,5 +1,5 @@
 from typing import Callable, Coroutine, Dict, Iterable, List, Optional
-from asyncio import get_event_loop, ensure_future, Future, gather
+from asyncio import get_event_loop, gather
 from aiohttp import TCPConnector, ClientSession
 
 from .model import EpiDataResponse
@@ -15,16 +15,15 @@ def _batch_call(
     loop = get_event_loop()
 
     async def impl() -> List:
-        tasks: List[Future] = []
+        tasks: List[Coroutine] = []
         connector = TCPConnector(limit=batch_size)
         async with ClientSession(connector=connector) as session:
             for call in calls:
                 co_routine = call_api(call, session)
-                task = ensure_future(co_routine)
-                tasks.append(task)
+                tasks.append(co_routine)
             return list(await gather(*tasks))
 
-    future = ensure_future(impl())
+    future = impl()
     return loop.run_until_complete(future)
 
 
