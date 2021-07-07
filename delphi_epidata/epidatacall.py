@@ -122,7 +122,7 @@ class EpiDataCall:
         response.raise_for_status()
         return response.text
 
-    def jsonl(
+    def iter(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[Session] = None
     ) -> Generator[Dict, None, Response]:
         """Request and streams epidata rows"""
@@ -173,7 +173,7 @@ class EpiDataCall:
         response.raise_for_status()
         return await response.text()
 
-    async def async_jsonl(
+    async def async_iter(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[ClientSession] = None
     ) -> AsyncGenerator[Dict, None]:
         """Async Request and streams epidata rows"""

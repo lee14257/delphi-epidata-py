@@ -1,12 +1,15 @@
 from delphi_epidata import covidcast_meta
 
-classic = covidcast_meta().classic()
+apicall = covidcast_meta()
+classic = apicall.classic()
 
-r = covidcast_meta().csv()
+r = apicall.csv()
 print(r[0:100])
 
-data = covidcast_meta().json()
+data = apicall.json()
 print(data[0])
 
-for row in covidcast_meta().jsonl():
+for i, row in enumerate(apicall.iter()):
     print(row)
+    if i > 5:
+        break
