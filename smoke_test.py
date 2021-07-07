@@ -11,5 +11,8 @@ print(r[0:100])
 data = apicall.json()
 print(data[0])
 
+df = apicall.df()
+print(df.columns)
+
 for row in apicall.iter():
     print(row)

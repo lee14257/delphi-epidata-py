@@ -15,6 +15,7 @@ from typing import (
 )
 from requests import Response, Session
 from aiohttp import ClientSession, ClientResponse
+from pandas import DataFrame
 
 from .model import EpiDataFormatType, EpiDataResponse, EpiRangeLike
 from ._constants import BASE_URL
@@ -114,6 +115,13 @@ class EpiDataCall:
         response.raise_for_status()
         return cast(List[Dict], response.json())
 
+    def df(
+        self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[Session] = None
+    ) -> DataFrame:
+        """Request and parse epidata as a pandas data frame"""
+        r = self.json(fields, base_url, session)
+        return DataFrame(r)
+
     def csv(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[Session] = None
     ) -> str:
@@ -164,6 +172,13 @@ class EpiDataCall:
         response = await self._async_call(base_url, EpiDataFormatType.json, fields, session)
         response.raise_for_status()
         return cast(List[Dict], await response.json())
+
+    async def async_df(
+        self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[Session] = None
+    ) -> DataFrame:
+        """Request and parse epidata as a pandas data frame"""
+        r = await self.async_json(fields, base_url, session)
+        return DataFrame(r)
 
     async def async_csv(
         self, fields: Optional[Iterable[str]] = None, base_url: str = BASE_URL, session: Optional[ClientSession] = None
