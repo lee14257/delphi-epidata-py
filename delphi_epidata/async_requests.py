@@ -1,3 +1,4 @@
+from datetime import date
 from typing import AsyncGenerator, Callable, Coroutine, Dict, Iterable, List, Mapping, Optional, Union, cast
 from json import loads
 
@@ -5,7 +6,7 @@ from asyncio import get_event_loop, gather
 from aiohttp import TCPConnector, ClientSession, ClientResponse
 from pandas import DataFrame
 
-from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange
+from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange, EpiDataFieldFormat
 from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
 
@@ -37,15 +38,16 @@ class EpiDataAsyncCall(AEpiDataCall):
         session: Optional[ClientSession],
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
+        field_types: Mapping[str, EpiDataFieldFormat],
     ) -> None:
-        super().__init__(base_url, endpoint, params)
+        super().__init__(base_url, endpoint, params, field_types)
         self._session = session
 
     def with_base_url(self, base_url: str) -> "EpiDataAsyncCall":
-        return EpiDataAsyncCall(base_url, self._session, self._endpoint, self._params)
+        return EpiDataAsyncCall(base_url, self._session, self._endpoint, self._params, self._field_types)
 
     def with_session(self, session: ClientSession) -> "EpiDataAsyncCall":
-        return EpiDataAsyncCall(self._base_url, session, self._endpoint, self._params)
+        return EpiDataAsyncCall(self._base_url, session, self._endpoint, self._params, self._field_types)
 
     async def _call(
         self,
@@ -67,11 +69,13 @@ class EpiDataAsyncCall(AEpiDataCall):
         """Request and parse epidata in CLASSIC message format."""
         return await self.classic(fields)
 
-    async def json(self, fields: Optional[Iterable[str]] = None) -> List[Dict]:
+    async def json(self, fields: Optional[Iterable[str]] = None) -> List[Dict[str, Union[str, int, float, date]]]:
         """Request and parse epidata in JSON format"""
         response = await self._call(EpiDataFormatType.json, fields)
         response.raise_for_status()
-        return cast(List[Dict], await response.json())
+        return [
+            self._parse_row(row) for row in cast(List[Dict[str, Union[str, int, float, date]]], await response.json())
+        ]
 
     async def df(self, fields: Optional[Iterable[str]] = None) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
@@ -84,14 +88,16 @@ class EpiDataAsyncCall(AEpiDataCall):
         response.raise_for_status()
         return await response.text()
 
-    async def iter(self, fields: Optional[Iterable[str]] = None) -> AsyncGenerator[Dict, None]:
+    async def iter(
+        self, fields: Optional[Iterable[str]] = None
+    ) -> AsyncGenerator[Dict[str, Union[str, int, float, date]], None]:
         """Request and streams epidata rows"""
         response = await self._call(EpiDataFormatType.jsonl, fields)
         response.raise_for_status()
         async for line in response.content:
-            yield loads(line)
+            yield self._parse_row(loads(line))
 
-    async def __(self) -> AsyncGenerator[Dict, None]:
+    async def __(self) -> AsyncGenerator[Dict[str, Union[str, int, float, date]], None]:
         return self.iter()
 
 
@@ -112,9 +118,12 @@ class EpiDataAsyncRequest(AEpiDataEndpoints[EpiDataAsyncCall]):
         return EpiDataAsyncRequest(self._base_url, session)
 
     def _create_call(
-        self, endpoint: str, params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]]
+        self,
+        endpoint: str,
+        params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
+        field_types: Mapping[str, EpiDataFieldFormat],
     ) -> EpiDataAsyncCall:
-        return EpiDataAsyncCall(self._base_url, self._session, endpoint, params)
+        return EpiDataAsyncCall(self._base_url, self._session, endpoint, params, field_types)
 
 
 def _batch_call(

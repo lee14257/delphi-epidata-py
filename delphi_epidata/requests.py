@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Generator, cast, Iterable, Mapping, Optional, Union, List, Dict
 from json import loads
 
@@ -5,7 +6,7 @@ from requests import Response, Session
 from tenacity import retry, stop_after_attempt
 from pandas import DataFrame
 
-from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange
+from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange, EpiDataFieldFormat
 from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
 
@@ -40,15 +41,16 @@ class EpiDataCall(AEpiDataCall):
         session: Optional[Session],
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
+        field_types: Mapping[str, EpiDataFieldFormat],
     ) -> None:
-        super().__init__(base_url, endpoint, params)
+        super().__init__(base_url, endpoint, params, field_types)
         self._session = session
 
     def with_base_url(self, base_url: str) -> "EpiDataCall":
-        return EpiDataCall(base_url, self._session, self._endpoint, self._params)
+        return EpiDataCall(base_url, self._session, self._endpoint, self._params, self._field_types)
 
     def with_session(self, session: Session) -> "EpiDataCall":
-        return EpiDataCall(self._base_url, session, self._endpoint, self._params)
+        return EpiDataCall(self._base_url, session, self._endpoint, self._params, self._field_types)
 
     def _call(
         self,
@@ -71,11 +73,11 @@ class EpiDataCall(AEpiDataCall):
         """Request and parse epidata in CLASSIC message format."""
         return self.classic(fields)
 
-    def json(self, fields: Optional[Iterable[str]] = None) -> List[Dict]:
+    def json(self, fields: Optional[Iterable[str]] = None) -> List[Dict[str, Union[str, int, float, date]]]:
         """Request and parse epidata in JSON format"""
         response = self._call(EpiDataFormatType.json, fields)
         response.raise_for_status()
-        return cast(List[Dict], response.json())
+        return [self._parse_row(row) for row in cast(List[Dict[str, Union[str, int, float, date]]], response.json())]
 
     def df(self, fields: Optional[Iterable[str]] = None) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
@@ -88,15 +90,17 @@ class EpiDataCall(AEpiDataCall):
         response.raise_for_status()
         return response.text
 
-    def iter(self, fields: Optional[Iterable[str]] = None) -> Generator[Dict, None, Response]:
+    def iter(
+        self, fields: Optional[Iterable[str]] = None
+    ) -> Generator[Dict[str, Union[str, int, float, date]], None, Response]:
         """Request and streams epidata rows"""
         response = self._call(EpiDataFormatType.jsonl, fields, stream=True)
         response.raise_for_status()
         for line in response.iter_lines():
-            yield loads(line)
+            yield self._parse_row(loads(line))
         return response
 
-    def __iter__(self) -> Generator[Dict, None, Response]:
+    def __iter__(self) -> Generator[Dict[str, Union[str, int, float, date]], None, Response]:
         return self.iter()
 
 
@@ -117,9 +121,12 @@ class EpiDataRequest(AEpiDataEndpoints[EpiDataCall]):
         return EpiDataRequest(self._base_url, session)
 
     def _create_call(
-        self, endpoint: str, params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]]
+        self,
+        endpoint: str,
+        params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
+        field_types: Mapping[str, EpiDataFieldFormat],
     ) -> EpiDataCall:
-        return EpiDataCall(self._base_url, self._session, endpoint, params)
+        return EpiDataCall(self._base_url, self._session, endpoint, params, field_types)
 
 
 Epidata = EpiDataRequest()

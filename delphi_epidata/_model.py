@@ -2,7 +2,8 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import date
 from urllib.parse import urlencode
-from typing import Iterable, List, Mapping, Optional, Tuple, TypedDict, Union
+from typing import Dict, Iterable, List, Mapping, Optional, Tuple, TypedDict, Union
+from collections import OrderedDict
 
 EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
 EpiRangeLike = Union[int, str, "EpiRange", EpiRangeDict, date]
@@ -86,6 +87,23 @@ class InvalidArgumentException(Exception):
     """
 
 
+class EpiDataFieldFormat(Enum):
+    """
+    field hit types
+    """
+
+    string = 0
+    int = 1
+    float = 2
+    date = 3
+    epiweek = 4
+    boolean = 5
+
+
+def define_field_types(**fields: EpiDataFieldFormat) -> Mapping[str, EpiDataFieldFormat]:
+    return OrderedDict(fields)
+
+
 class AEpiDataCall:
     """
     base epidata call class
@@ -96,10 +114,12 @@ class AEpiDataCall:
         base_url: str,
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
+        field_types: Mapping[str, EpiDataFieldFormat],
     ) -> None:
         self._base_url = base_url
         self._endpoint = endpoint
         self._params = params
+        self._field_types = field_types
 
     def _formatted_paramters(
         self, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
@@ -153,3 +173,9 @@ class AEpiDataCall:
 
     def __str__(self) -> str:
         return self.request_url()
+
+    def _parse_row(self, row: Dict[str, Union[str, int, float, date]]) -> Dict[str, Union[str, int, float, date]]:
+        if not self._field_types:
+            return row
+        # TODO parse
+        return row
