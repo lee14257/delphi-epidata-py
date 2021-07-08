@@ -5,7 +5,7 @@ from asyncio import get_event_loop, gather
 from aiohttp import TCPConnector, ClientSession, ClientResponse
 from pandas import DataFrame
 
-from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse
+from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange
 from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
 
@@ -137,7 +137,7 @@ def _batch_call(
     return loop.run_until_complete(future)
 
 
-def batch_call(
+def batch_classic(
     calls: Iterable[EpiDataAsyncCall],
     fields: Optional[Iterable[str]] = None,
     batch_size: int = 50,
@@ -183,3 +183,6 @@ def batch_csv(
 
 
 Epidata = EpiDataAsyncRequest()
+
+
+__all__ = ["Epidata", "EpiDataAsyncCall", "EpiDataAsyncRequest", "EpiRange", "batch_csv", "batch_json", "batch_classic"]

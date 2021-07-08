@@ -1,6 +1,9 @@
-from delphi_epidata.requests import Epidata
+from datetime import date
+from delphi_epidata.requests import Epidata, EpiRange
 
-apicall = Epidata.covidcast("fb-survey", "smoothed_cli", "day", "nation", Epidata.range(20210405, 20210410), "us")
+apicall = Epidata.covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
+
+print(apicall)
 
 classic = apicall.classic()
 print(classic)
@@ -17,6 +20,9 @@ print(df.columns)
 for row in apicall.iter():
     print(row)
 
+StagingEpidata = Epidata.with_base_url("https://staging.delphi.cmu.edu/epidata/")
 
-df = Epidata.covidcast("fb-survey", "smoothed_cli", "day", "nation", Epidata.range(20210405, 20210410), "*").df()
-print(df)
+df = StagingEpidata.covidcast(
+    "fb-survey", "smoothed_cli", "day", "nation", EpiRange(date(2021, 4, 5), date(2021, 4, 10)), "*"
+).df()
+print(df.shape)

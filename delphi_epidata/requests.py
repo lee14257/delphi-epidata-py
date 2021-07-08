@@ -5,7 +5,7 @@ from requests import Response, Session
 from tenacity import retry, stop_after_attempt
 from pandas import DataFrame
 
-from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse
+from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange
 from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
 
@@ -123,3 +123,6 @@ class EpiDataRequest(AEpiDataEndpoints[EpiDataCall]):
 
 
 Epidata = EpiDataRequest()
+
+
+__all__ = ["Epidata", "EpiDataCall", "EpiDataRequest", "EpiRange"]
