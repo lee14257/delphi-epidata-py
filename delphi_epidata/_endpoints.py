@@ -394,14 +394,14 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         time_type: str,
         geo_type: str,
         time_values: EpiRangeParam,
-        geo_value: str,
+        geo_values: StringParam,
         as_of: Union[None, int, str] = None,
         issues: Optional[EpiRangeParam] = None,
         lag: Optional[int] = None,
     ) -> CALL_TYPE:
         """Fetch Delphi's COVID-19 Nowcast sensors"""
 
-        if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_value, sensor_names))):
+        if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_values, sensor_names))):
             raise InvalidArgumentException(
                 "`data_source`, `signals`, `sensor_names`, `time_type`, `geo_type`, `time_values`, and `geo_value`"
                 + " are all required"
@@ -409,20 +409,18 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         if issues is not None and lag is not None:
             raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
 
-        params = dict(
-            data_source=data_source,
-            signals=signals,
-            sensor_names=sensor_names,
-            time_type=time_type,
-            geo_type=geo_type,
-            time_values=time_values,
-            as_of=as_of,
-            issues=issues,
-            lag=lag,
+        return self._create_call(
+            "covidcast_nowcast/",
+            dict(
+                data_source=data_source,
+                signals=signals,
+                sensor_names=sensor_names,
+                time_type=time_type,
+                geo_type=geo_type,
+                time_values=time_values,
+                as_of=as_of,
+                issues=issues,
+                lag=lag,
+                geo_values=geo_values,
+            ),
         )
-        if isinstance(geo_value, (list, tuple)):
-            params["geo_values"] = ",".join(geo_value)
-        else:
-            params["geo_value"] = geo_value
-
-        return self._create_call("covidcast_nowcast/", params)

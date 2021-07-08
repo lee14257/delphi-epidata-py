@@ -16,3 +16,7 @@ print(df.columns)
 
 for row in apicall.iter():
     print(row)
+
+
+df = Epidata.covidcast("fb-survey", "smoothed_cli", "day", "nation", Epidata.range(20210405, 20210410), "*").df()
+print(df)
