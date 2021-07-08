@@ -305,35 +305,33 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         time_type: str,
         geo_type: str,
         time_values: EpiRangeParam,
-        geo_value: Union[int, str, Iterable[Union[int, str]]],
+        geo_values: Union[int, str, Iterable[Union[int, str]]],
         as_of: Union[None, str, int] = None,
         issues: Optional[EpiRangeParam] = None,
         lag: Optional[int] = None,
     ) -> CALL_TYPE:
         """Fetch Delphi's COVID-19 Surveillance Streams"""
-        if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_value))):
+        if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_values))):
             raise InvalidArgumentException(
-                "`data_source`, `signals`, `time_type`, `geo_type`, `time_values`, and `geo_value` are all required"
+                "`data_source`, `signals`, `time_type`, `geo_type`, `time_values`, and `geo_values` are all required"
             )
         if issues is not None and lag is not None:
             raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
 
-        params = dict(
-            data_source=data_source,
-            signals=signals,
-            time_type=time_type,
-            geo_type=geo_type,
-            time_values=time_values,
-            as_of=as_of,
-            issues=issues,
-            lag=lag,
+        return self._create_call(
+            "covidcast/",
+            dict(
+                data_source=data_source,
+                signals=signals,
+                time_type=time_type,
+                geo_type=geo_type,
+                time_values=time_values,
+                as_of=as_of,
+                issues=issues,
+                lag=lag,
+                geo_values=geo_values,
+            ),
         )
-        if isinstance(geo_value, (list, tuple)):
-            params["geo_values"] = ",".join(geo_value)
-        else:
-            params["geo_value"] = geo_value
-
-        return self._create_call("covidcast/", params)
 
     def covidcast_meta(self) -> CALL_TYPE:
         """Fetch Delphi's COVID-19 Surveillance Streams metadata"""
