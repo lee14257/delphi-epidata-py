@@ -46,7 +46,9 @@ class EpiRange:
     def __post_init__(self) -> None:
         # swap if wrong order
         # complicated construct for typing inference
-        if (isinstance(self.end, date) and isinstance(self.start, date) and self.end < self.start) or (
+        if (  # pylint: disable=too-many-boolean-expressions
+            isinstance(self.end, date) and isinstance(self.start, date) and self.end < self.start
+        ) or (
             (isinstance(self.end, int) and isinstance(self.start, int) and self.end < self.start)
             or (isinstance(self.end, str) and isinstance(self.start, str) and self.end < self.start)
         ):
