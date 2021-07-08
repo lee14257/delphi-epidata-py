@@ -99,9 +99,9 @@ class AEpiDataCall:
         self._endpoint = endpoint
         self._params = params
 
-    def request_arguments(
+    def _formatted_paramters(
         self, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
-    ) -> Tuple[str, Mapping[str, str]]:
+    ) -> Mapping[str, str]:
         """
         format this call into a [URL, Params] tuple
         """
@@ -110,7 +110,15 @@ class AEpiDataCall:
             all_params["format"] = format_type
         if fields:
             all_params["fields"] = fields
-        formatted_params = {k: format_list(v) for k, v in all_params.items() if v is not None}
+        return {k: format_list(v) for k, v in all_params.items() if v is not None}
+
+    def request_arguments(
+        self, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
+    ) -> Tuple[str, Mapping[str, str]]:
+        """
+        format this call into a [URL, Params] tuple
+        """
+        formatted_params = self._formatted_paramters(format_type, fields)
         full_url = self._full_url()
         return full_url, formatted_params
 
@@ -137,3 +145,9 @@ class AEpiDataCall:
         if query:
             return f"{u}?{query}"
         return u
+
+    def __repr__(self) -> str:
+        return f"EpiDataCall(endpoint={self._endpoint}, params={self._formatted_paramters()})"
+
+    def __str__(self) -> str:
+        return self.request_url()
