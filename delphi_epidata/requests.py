@@ -11,7 +11,7 @@ from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
 
 
-@retry(reraise=True, stop=stop_after_attempt(2))  # type: ignore
+@retry(reraise=True, stop=stop_after_attempt(2))
 def _request_with_retry(
     url: str, params: Mapping[str, str], session: Optional[Session] = None, stream: bool = False
 ) -> Response:
