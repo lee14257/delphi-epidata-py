@@ -1,6 +1,9 @@
-__version__ = "1.0.0"
+from typing import Final
 
 
-HTTP_HEADERS = {"User-Agent": f"delphi_epidata/{__version__}"}
+__version__: Final = "1.0.0"
 
-BASE_URL = "https://delphi.cmu.edu/epidata/"
+
+HTTP_HEADERS: Final = {"User-Agent": f"delphi_epidata/{__version__}"}
+
+BASE_URL: Final = "https://delphi.cmu.edu/epidata/"

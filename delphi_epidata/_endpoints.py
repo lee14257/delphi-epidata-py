@@ -7,8 +7,7 @@ from ._model import (
     StringParam,
     IntParam,
     EpiRange,
-    EpiDataFieldFormat,
-    define_field_types,
+    EPI_RANGE_TYPE,
 )
 
 CALL_TYPE = TypeVar("CALL_TYPE")
@@ -20,7 +19,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
     """
 
     @staticmethod
-    def range(from_: int, to: int) -> EpiRange:
+    def range(from_: EPI_RANGE_TYPE, to: EPI_RANGE_TYPE) -> EpiRange:
         return EpiRange(from_, to)
 
     @abstractmethod
@@ -28,7 +27,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         self,
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
-        field_types: Mapping[str, EpiDataFieldFormat],
     ) -> CALL_TYPE:
         raise NotImplementedError()
 
@@ -47,14 +45,12 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "fluview/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag, auth=auth),
-            define_field_types(),
         )
 
     def fluview_meta(self) -> CALL_TYPE:
         return self._create_call(
             "fluview_meta",
             {},
-            define_field_types(),
         )
 
     def fluview_clinical(
@@ -73,7 +69,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "fluview_clinical/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
-            define_field_types(),
         )
 
     def flusurv(
@@ -92,7 +87,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "flusurv/",
             dict(locations=locations, epiweeks=epiweeks, issues=issues, lag=lag),
-            define_field_types(),
         )
 
     def paho_dengue(
@@ -111,7 +105,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "paho_dengue/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
-            define_field_types(),
         )
 
     def ecdc_ili(
@@ -129,7 +122,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "ecdc_ili/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
-            define_field_types(),
         )
 
     def kcdc_ili(
@@ -147,7 +139,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "kcdc_ili/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
-            define_field_types(),
         )
 
     def gft(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -157,7 +148,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "gft/",
             dict(locations=locations, epiweeks=epiweeks),
-            define_field_types(),
         )
 
     def ght(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
@@ -167,7 +157,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "ght/",
             dict(auth=auth, locations=locations, epiweeks=epiweeks, query=query),
-            define_field_types(),
         )
 
     def twitter(
@@ -186,7 +175,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "twitter/",
             dict(auth=auth, locations=locations, dates=dates, epiweeks=epiweeks),
-            define_field_types(),
         )
 
     def wiki(
@@ -206,7 +194,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "wiki/",
             dict(articles=articles, dates=dates, epiweeks=epiweeks, hours=hours, language=language),
-            define_field_types(),
         )
 
     def cdc(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
@@ -218,7 +205,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "cdc/",
             dict(auth=auth, epiweeks=epiweeks, locations=locations),
-            define_field_types(),
         )
 
     def quidel(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
@@ -230,7 +216,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "quidel/",
             dict(auth=auth, epiweeks=epiweeks, locations=locations),
-            define_field_types(),
         )
 
     def norostat(self, auth: str, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -241,7 +226,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "norostat/",
             dict(auth=auth, epiweeks=epiweeks, location=location),
-            define_field_types(),
         )
 
     def meta_norostat(self, auth: str) -> CALL_TYPE:
@@ -252,7 +236,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "meta_norostat/",
             dict(auth=auth),
-            define_field_types(),
         )
 
     def afhsb(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam) -> CALL_TYPE:
@@ -290,7 +273,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "afhsb/",
             dict(auth=auth, locations=locations, epiweeks=epiweeks, flu_types=flu_types),
-            define_field_types(),
         )
 
     def meta_afhsb(self, auth: str) -> CALL_TYPE:
@@ -302,7 +284,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "meta_afhsb/",
             dict(auth=auth),
-            define_field_types(),
         )
 
     def nidss_flu(
@@ -322,7 +303,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "nidss_flu/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
-            define_field_types(),
         )
 
     def nidss_dengue(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -334,7 +314,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "nidss_dengue/",
             dict(locations=locations, epiweeks=epiweeks),
-            define_field_types(),
         )
 
     def delphi(self, system: str, epiweek: Union[int, str]) -> CALL_TYPE:
@@ -345,7 +324,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "delphi/",
             dict(system=system, epiweek=epiweek),
-            define_field_types(),
         )
 
     def sensors(self, auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -356,7 +334,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "sensors/",
             dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks),
-            define_field_types(),
         )
 
     def dengue_sensors(
@@ -370,7 +347,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "dengue_sensors/",
             dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks),
-            define_field_types(),
         )
 
     def nowcast(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -382,7 +358,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "nowcast/",
             dict(locations=locations, epiweeks=epiweeks),
-            define_field_types(),
         )
 
     def dengue_nowcast(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -393,7 +368,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "dengue_nowcast/",
             dict(locations=locations, epiweeks=epiweeks),
-            define_field_types(),
         )
 
     def meta(self) -> CALL_TYPE:
@@ -401,7 +375,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "meta/",
             {},
-            define_field_types(),
         )
 
     def covidcast(
@@ -437,7 +410,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
                 lag=lag,
                 geo_values=geo_values,
             ),
-            define_field_types(),
         )
 
     def covidcast_meta(self) -> CALL_TYPE:
@@ -445,7 +417,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "covidcast_meta/",
             {},
-            define_field_types(),
         )
 
     def covid_hosp(
@@ -462,7 +433,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "covid_hosp/",
             dict(states=states, dates=dates, issues=issues, as_of=as_of),
-            define_field_types(),
         )
 
     def covid_hosp_facility(
@@ -479,7 +449,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "covid_hosp_facility/",
             dict(hospital_pks=hospital_pks, collection_weeks=collection_weeks, publication_dates=publication_dates),
-            define_field_types(),
         )
 
     def covid_hosp_facility_lookup(
@@ -498,7 +467,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "covid_hosp_facility_lookup/",
             dict(state=state, ccn=ccn, city=city, zip=zip, fips_code=fips_code),
-            define_field_types(),
         )
 
     def covidcast_nowcast(
@@ -538,5 +506,4 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
                 lag=lag,
                 geo_values=geo_values,
             ),
-            define_field_types(),
         )

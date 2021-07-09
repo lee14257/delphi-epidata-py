@@ -2,8 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from datetime import date
 from urllib.parse import urlencode
-from typing import Dict, Iterable, List, Mapping, Optional, Tuple, TypedDict, Union
-from collections import OrderedDict
+from typing import Final, Generic, Iterable, List, Mapping, Optional, Tuple, TypeVar, TypedDict, Union
 
 EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
 EpiRangeLike = Union[int, str, "EpiRange", EpiRangeDict, date]
@@ -35,24 +34,22 @@ def format_list(values: Union[EpiRangeLike, Iterable[EpiRangeLike]]) -> str:
     return ",".join([format_item(value) for value in list_values])
 
 
+EPI_RANGE_TYPE = TypeVar("EPI_RANGE_TYPE", int, date, str)
+
+
 @dataclass(repr=False)
-class EpiRange:
+class EpiRange(Generic[EPI_RANGE_TYPE]):
     """
     Range object for dates/epiweeks
     """
 
-    start: Union[int, date, str]
-    end: Union[int, date, str]
+    start: EPI_RANGE_TYPE
+    end: EPI_RANGE_TYPE
 
     def __post_init__(self) -> None:
         # swap if wrong order
         # complicated construct for typing inference
-        if (  # pylint: disable=too-many-boolean-expressions
-            isinstance(self.end, date) and isinstance(self.start, date) and self.end < self.start
-        ) or (
-            (isinstance(self.end, int) and isinstance(self.start, int) and self.end < self.start)
-            or (isinstance(self.end, str) and isinstance(self.start, str) and self.end < self.start)
-        ):
+        if self.end < self.start:
             self.start, self.end = self.end, self.start
 
     def __repr__(self) -> str:
@@ -83,25 +80,8 @@ class EpiDataFormatType(str, Enum):
 
 class InvalidArgumentException(Exception):
     """
-    exception
+    exception for an invalid argument
     """
-
-
-class EpiDataFieldFormat(Enum):
-    """
-    field hit types
-    """
-
-    string = 0
-    int = 1
-    float = 2
-    date = 3
-    epiweek = 4
-    boolean = 5
-
-
-def define_field_types(**fields: EpiDataFieldFormat) -> Mapping[str, EpiDataFieldFormat]:
-    return OrderedDict(fields)
 
 
 class AEpiDataCall:
@@ -109,17 +89,19 @@ class AEpiDataCall:
     base epidata call class
     """
 
+    _base_url: Final[str]
+    _endpoint: Final[str]
+    _params: Final[Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]]]
+
     def __init__(
         self,
         base_url: str,
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
-        field_types: Mapping[str, EpiDataFieldFormat],
     ) -> None:
         self._base_url = base_url
         self._endpoint = endpoint
         self._params = params
-        self._field_types = field_types
 
     def _formatted_paramters(
         self, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
@@ -173,9 +155,3 @@ class AEpiDataCall:
 
     def __str__(self) -> str:
         return self.request_url()
-
-    def _parse_row(self, row: Dict[str, Union[str, int, float, date]]) -> Dict[str, Union[str, int, float, date]]:
-        if not self._field_types:
-            return row
-        # TODO parse
-        return row
