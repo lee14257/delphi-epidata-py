@@ -105,7 +105,7 @@ class EpiDataCall(AEpiDataCall):
         return self.iter()
 
 
-class EpiDataRequest(AEpiDataEndpoints[EpiDataCall]):
+class EpiDataContext(AEpiDataEndpoints[EpiDataCall]):
     """
     sync epidata call class
     """
@@ -118,11 +118,11 @@ class EpiDataRequest(AEpiDataEndpoints[EpiDataCall]):
         self._base_url = base_url
         self._session = session
 
-    def with_base_url(self, base_url: str) -> "EpiDataRequest":
-        return EpiDataRequest(base_url, self._session)
+    def with_base_url(self, base_url: str) -> "EpiDataContext":
+        return EpiDataContext(base_url, self._session)
 
-    def with_session(self, session: Session) -> "EpiDataRequest":
-        return EpiDataRequest(self._base_url, session)
+    def with_session(self, session: Session) -> "EpiDataContext":
+        return EpiDataContext(self._base_url, session)
 
     def _create_call(
         self,
@@ -132,7 +132,7 @@ class EpiDataRequest(AEpiDataEndpoints[EpiDataCall]):
         return EpiDataCall(self._base_url, self._session, endpoint, params)
 
 
-Epidata = EpiDataRequest()
+Epidata = EpiDataContext()
 
 
-__all__ = ["Epidata", "EpiDataCall", "EpiDataRequest", "EpiRange"]
+__all__ = ["Epidata", "EpiDataCall", "EpiDataContext", "EpiRange"]
