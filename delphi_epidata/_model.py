@@ -89,6 +89,10 @@ class InvalidArgumentException(Exception):
 
 
 class EpidataFieldType(Enum):
+    """
+    field type
+    """
+
     text = 0
     int = 1
     float = 2
@@ -100,6 +104,10 @@ class EpidataFieldType(Enum):
 
 @dataclass
 class EpidataFieldInfo:
+    """
+    meta data information about an return field
+    """
+
     name: Final[str] = ""
     type: Final[EpidataFieldType] = EpidataFieldType.text
     description: Final[str] = ""
@@ -189,9 +197,9 @@ class AEpiDataCall:
             return value
         if meta.type == EpidataFieldType.date:
             return parse_api_date(value)
-        elif meta.type == EpidataFieldType.epiweek:
+        if meta.type == EpidataFieldType.epiweek:
             return parse_api_week(value)
-        elif meta.type == EpidataFieldType.bool:
+        if meta.type == EpidataFieldType.bool:
             return bool(value)
         return value
 
