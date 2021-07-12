@@ -1,8 +1,10 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from datetime import date
 from urllib.parse import urlencode
-from typing import Final, Generic, Iterable, List, Mapping, Optional, Tuple, TypeVar, TypedDict, Union
+from typing import Final, Generic, Iterable, List, Mapping, Optional, Sequence, Tuple, TypeVar, TypedDict, Union
+
+from ._parse import parse_api_date, parse_api_week
 
 EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
 EpiRangeLike = Union[int, str, "EpiRange", EpiRangeDict, date]
@@ -84,6 +86,23 @@ class InvalidArgumentException(Exception):
     """
 
 
+class EpidataFieldType(Enum):
+    text = 0
+    int = 1
+    float = 2
+    date = 3
+    epiweek = 4
+    categorical = 5
+
+
+@dataclass
+class EpidataFieldInfo:
+    name: Final[str] = ""
+    type: Final[EpidataFieldType] = EpidataFieldType.text
+    description: Final[str] = ""
+    categories: Final[Sequence[str]] = field(default_factory=list)
+
+
 class AEpiDataCall:
     """
     base epidata call class
@@ -92,16 +111,21 @@ class AEpiDataCall:
     _base_url: Final[str]
     _endpoint: Final[str]
     _params: Final[Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]]]
+    meta: Final[Sequence[EpidataFieldInfo]]
+    meta_by_name: Final[Mapping[str, EpidataFieldInfo]]
 
     def __init__(
         self,
         base_url: str,
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
+        meta: Optional[Sequence[EpidataFieldInfo]] = None,
     ) -> None:
         self._base_url = base_url
         self._endpoint = endpoint
         self._params = params
+        self.meta = meta or []
+        self.meta_by_name = {k.name: k for k in self.meta}
 
     def _formatted_paramters(
         self, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
@@ -155,3 +179,20 @@ class AEpiDataCall:
 
     def __str__(self) -> str:
         return self.request_url()
+
+    def _parse_value(self, key: str, value: Union[str, float, int, None]) -> Union[str, float, int, date, None]:
+        meta = self.meta_by_name.get(key)
+        if not meta or value is None:
+            return value
+        if meta.type == EpidataFieldType.date:
+            return parse_api_date(value)
+        elif meta.type == EpidataFieldType.epiweek:
+            return parse_api_week(value)
+        return value
+
+    def _parse_row(
+        self, row: Mapping[str, Union[str, float, int, None]]
+    ) -> Mapping[str, Union[str, float, int, date, None]]:
+        if not self.meta:
+            return row
+        return {k: self._parse_value(k, v) for k, v in row.items()}

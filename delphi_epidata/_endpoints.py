@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Iterable, Mapping, Optional, TypeVar, Union
+from typing import Generic, Iterable, Mapping, Optional, TypeVar, Union, Sequence
 from ._model import (
     EpiRangeLike,
     EpiRangeParam,
@@ -8,6 +8,7 @@ from ._model import (
     IntParam,
     EpiRange,
     EPI_RANGE_TYPE,
+    EpidataFieldInfo,
 )
 
 CALL_TYPE = TypeVar("CALL_TYPE")
@@ -27,6 +28,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         self,
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
+        meta: Optional[Sequence[EpidataFieldInfo]] = None,
     ) -> CALL_TYPE:
         raise NotImplementedError()
 
