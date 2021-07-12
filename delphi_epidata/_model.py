@@ -4,6 +4,8 @@ from datetime import date
 from urllib.parse import urlencode
 from typing import Final, Generic, Iterable, List, Mapping, Optional, Sequence, Tuple, TypeVar, TypedDict, Union
 
+from pandas import DataFrame, to_datetime
+
 from ._parse import parse_api_date, parse_api_week
 
 EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
@@ -93,6 +95,7 @@ class EpidataFieldType(Enum):
     date = 3
     epiweek = 4
     categorical = 5
+    bool = 6
 
 
 @dataclass
@@ -188,6 +191,8 @@ class AEpiDataCall:
             return parse_api_date(value)
         elif meta.type == EpidataFieldType.epiweek:
             return parse_api_week(value)
+        elif meta.type == EpidataFieldType.bool:
+            return bool(value)
         return value
 
     def _parse_row(
@@ -196,3 +201,12 @@ class AEpiDataCall:
         if not self.meta:
             return row
         return {k: self._parse_value(k, v) for k, v in row.items()}
+
+    def _as_df(self, rows: Sequence[Mapping[str, Union[str, float, int, date, None]]]) -> DataFrame:
+        df = DataFrame(rows)
+        for info in self.meta:
+            if info.type in (EpidataFieldType.date, EpidataFieldType.epiweek) and info.name in df.columns:
+                df[info.name] = to_datetime(df[info.name])
+            if info.type == EpidataFieldType.categorical and info.categories and info.name in df.columns:
+                df[info.name] = df[info.name].astype("category").cat.set_categories(info.categories, ordered=True)
+        return df

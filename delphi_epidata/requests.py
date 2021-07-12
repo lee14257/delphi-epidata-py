@@ -88,7 +88,7 @@ class EpiDataCall(AEpiDataCall):
     def df(self, fields: Optional[Iterable[str]] = None) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
         r = self.json(fields)
-        return DataFrame(r)
+        return self._as_df(r)
 
     def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""

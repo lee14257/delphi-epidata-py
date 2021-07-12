@@ -76,7 +76,11 @@ class EpiDataAsyncCall(AEpiDataCall):
         """Request and parse epidata in CLASSIC message format."""
         try:
             response = await self._call(None, fields)
-            return cast(EpiDataResponse, await response.json())
+            r = cast(EpiDataResponse, await response.json())
+            epidata = r.get("epidata")
+            if epidata and isinstance(epidata, list) and len(epidata) > 0 and isinstance(epidata[0], dict):
+                r["epidata"] = [self._parse_row(row) for row in epidata]
+            return r
         except Exception as e:  # pylint: disable=broad-except
             return {"result": 0, "message": f"error: {e}", "epidata": []}
 
@@ -98,7 +102,7 @@ class EpiDataAsyncCall(AEpiDataCall):
     async def df(self, fields: Optional[Iterable[str]] = None) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
         r = await self.json(fields)
-        return DataFrame(r)
+        return self._as_df(r)
 
     async def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""

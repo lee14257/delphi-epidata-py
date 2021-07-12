@@ -16,6 +16,7 @@ print(data[0])
 
 df = apicall.df()
 print(df.columns)
+print(df.dtypes)
 
 for row in apicall.iter():
     print(row)

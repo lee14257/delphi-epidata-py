@@ -9,6 +9,7 @@ from ._model import (
     EpiRange,
     EPI_RANGE_TYPE,
     EpidataFieldInfo,
+    EpidataFieldType,
 )
 
 CALL_TYPE = TypeVar("CALL_TYPE")
@@ -67,6 +68,12 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "afhsb/",
             dict(auth=auth, locations=locations, epiweeks=epiweeks, flu_types=flu_types),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("flu_type", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("visit_num", EpidataFieldType.int),
+            ],
         )
 
     def cdc(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
@@ -78,22 +85,20 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "cdc/",
             dict(auth=auth, epiweeks=epiweeks, locations=locations),
-        )
-
-    def covid_hosp_facility(
-        self,
-        hospital_pks: StringParam,
-        collection_weeks: StringParam,
-        publication_dates: Optional[EpiRangeParam] = None,
-    ) -> CALL_TYPE:
-        """Fetch COVID hospitalization data for specific facilities."""
-
-        if hospital_pks is None or collection_weeks is None:
-            raise InvalidArgumentException("`hospital_pks` and `collection_weeks` are both required")
-
-        return self._create_call(
-            "covid_hosp_facility/",
-            dict(hospital_pks=hospital_pks, collection_weeks=collection_weeks, publication_dates=publication_dates),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("num1", EpidataFieldType.int),
+                EpidataFieldInfo("num2", EpidataFieldType.int),
+                EpidataFieldInfo("num3", EpidataFieldType.int),
+                EpidataFieldInfo("num4", EpidataFieldType.int),
+                EpidataFieldInfo("num5", EpidataFieldType.int),
+                EpidataFieldInfo("num6", EpidataFieldType.int),
+                EpidataFieldInfo("num7", EpidataFieldType.int),
+                EpidataFieldInfo("num8", EpidataFieldType.int),
+                EpidataFieldInfo("total", EpidataFieldType.int),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+            ],
         )
 
     def covid_hosp_facility_lookup(
@@ -112,6 +117,140 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "covid_hosp_facility_lookup/",
             dict(state=state, ccn=ccn, city=city, zip=zip, fips_code=fips_code),
+            [
+                EpidataFieldInfo("hospital_pk", EpidataFieldType.text),
+                EpidataFieldInfo("state", EpidataFieldType.text),
+                EpidataFieldInfo("ccn", EpidataFieldType.text),
+                EpidataFieldInfo("hospital_name", EpidataFieldType.text),
+                EpidataFieldInfo("address", EpidataFieldType.text),
+                EpidataFieldInfo("city", EpidataFieldType.text),
+                EpidataFieldInfo("zip", EpidataFieldType.text),
+                EpidataFieldInfo("hospital_subtype", EpidataFieldType.text),
+                EpidataFieldInfo("fip_code", EpidataFieldType.text),
+                EpidataFieldInfo("is_metro_micro", EpidataFieldType.int),
+            ],
+        )
+
+    def covid_hosp_facility(
+        self,
+        hospital_pks: StringParam,
+        collection_weeks: StringParam,
+        publication_dates: Optional[EpiRangeParam] = None,
+    ) -> CALL_TYPE:
+        """Fetch COVID hospitalization data for specific facilities."""
+
+        if hospital_pks is None or collection_weeks is None:
+            raise InvalidArgumentException("`hospital_pks` and `collection_weeks` are both required")
+
+        fields_string = [
+            "hospital_pk",
+            "state",
+            "ccn",
+            "hospital_name",
+            "address",
+            "city",
+            "zip",
+            "hospital_subtype",
+            "fips_code",
+        ]
+        fields_int = [
+            "total_beds_7_day_sum",
+            "all_adult_hospital_beds_7_day_sum",
+            "all_adult_hospital_inpatient_beds_7_day_sum",
+            "inpatient_beds_used_7_day_sum",
+            "all_adult_hospital_inpatient_bed_occupied_7_day_sum",
+            "total_adult_patients_hosp_confirmed_suspected_covid_7d_sum",
+            "total_adult_patients_hospitalized_confirmed_covid_7_day_sum",
+            "total_pediatric_patients_hosp_confirmed_suspected_covid_7d_sum",
+            "total_pediatric_patients_hospitalized_confirmed_covid_7_day_sum",
+            "inpatient_beds_7_day_sum",
+            "total_icu_beds_7_day_sum",
+            "total_staffed_adult_icu_beds_7_day_sum",
+            "icu_beds_used_7_day_sum",
+            "staffed_adult_icu_bed_occupancy_7_day_sum",
+            "staffed_icu_adult_patients_confirmed_suspected_covid_7d_sum",
+            "staffed_icu_adult_patients_confirmed_covid_7_day_sum",
+            "total_patients_hospitalized_confirmed_influenza_7_day_sum",
+            "icu_patients_confirmed_influenza_7_day_sum",
+            "total_patients_hosp_confirmed_influenza_and_covid_7d_sum",
+            "total_beds_7_day_coverage",
+            "all_adult_hospital_beds_7_day_coverage",
+            "all_adult_hospital_inpatient_beds_7_day_coverage",
+            "inpatient_beds_used_7_day_coverage",
+            "all_adult_hospital_inpatient_bed_occupied_7_day_coverage",
+            "total_adult_patients_hosp_confirmed_suspected_covid_7d_cov",
+            "total_adult_patients_hospitalized_confirmed_covid_7_day_coverage",
+            "total_pediatric_patients_hosp_confirmed_suspected_covid_7d_cov",
+            "total_pediatric_patients_hosp_confirmed_covid_7d_cov",
+            "inpatient_beds_7_day_coverage",
+            "total_icu_beds_7_day_coverage",
+            "total_staffed_adult_icu_beds_7_day_coverage",
+            "icu_beds_used_7_day_coverage",
+            "staffed_adult_icu_bed_occupancy_7_day_coverage",
+            "staffed_icu_adult_patients_confirmed_suspected_covid_7d_cov",
+            "staffed_icu_adult_patients_confirmed_covid_7_day_coverage",
+            "total_patients_hospitalized_confirmed_influenza_7_day_coverage",
+            "icu_patients_confirmed_influenza_7_day_coverage",
+            "total_patients_hosp_confirmed_influenza_and_covid_7d_cov",
+            "previous_day_admission_adult_covid_confirmed_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_18_19_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_20_29_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_30_39_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_40_49_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_50_59_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_60_69_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_70_79_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_80plus_7_day_sum",
+            "previous_day_admission_adult_covid_confirmed_unknown_7_day_sum",
+            "previous_day_admission_pediatric_covid_confirmed_7_day_sum",
+            "previous_day_covid_ed_visits_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_18_19_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_20_29_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_30_39_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_40_49_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_50_59_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_60_69_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_70_79_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_80plus_7_day_sum",
+            "previous_day_admission_adult_covid_suspected_unknown_7_day_sum",
+            "previous_day_admission_pediatric_covid_suspected_7_day_sum",
+            "previous_day_total_ed_visits_7_day_sum",
+            "previous_day_admission_influenza_confirmed_7_day_sum",
+        ]
+        fields_float = [
+            "total_beds_7_day_avg",
+            "all_adult_hospital_beds_7_day_avg",
+            "all_adult_hospital_inpatient_beds_7_day_avg",
+            "inpatient_beds_used_7_day_avg",
+            "all_adult_hospital_inpatient_bed_occupied_7_day_avg",
+            "total_adult_patients_hosp_confirmed_suspected_covid_7d_avg",
+            "total_adult_patients_hospitalized_confirmed_covid_7_day_avg",
+            "total_pediatric_patients_hosp_confirmed_suspected_covid_7d_avg",
+            "total_pediatric_patients_hospitalized_confirmed_covid_7_day_avg",
+            "inpatient_beds_7_day_avg",
+            "total_icu_beds_7_day_avg",
+            "total_staffed_adult_icu_beds_7_day_avg",
+            "icu_beds_used_7_day_avg",
+            "staffed_adult_icu_bed_occupancy_7_day_avg",
+            "staffed_icu_adult_patients_confirmed_suspected_covid_7d_avg",
+            "staffed_icu_adult_patients_confirmed_covid_7_day_avg",
+            "total_patients_hospitalized_confirmed_influenza_7_day_avg",
+            "icu_patients_confirmed_influenza_7_day_avg",
+            "total_patients_hosp_confirmed_influenza_and_covid_7d_avg",
+        ]
+
+        return self._create_call(
+            "covid_hosp_facility/",
+            dict(hospital_pks=hospital_pks, collection_weeks=collection_weeks, publication_dates=publication_dates),
+            [
+                *[EpidataFieldInfo(k, EpidataFieldType.text) for k in fields_string],
+                EpidataFieldInfo("publication_date", EpidataFieldType.date),
+                EpidataFieldInfo("collection_week", EpidataFieldType.epiweek),
+                EpidataFieldInfo("is_metro_micro", EpidataFieldType.bool),
+                *[EpidataFieldInfo(k, EpidataFieldType.int) for k in fields_int],
+                *[EpidataFieldInfo(k, EpidataFieldType.float) for k in fields_float],
+            ],
         )
 
     def covid_hosp_state_timeseries(
@@ -125,44 +264,83 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
 
         if states is None or dates is None:
             raise InvalidArgumentException("`states` and `dates` are both required")
+
+        fields_int = [
+            "hospital_onset_covid",
+            "hospital_onset_covid_coverage",
+            "inpatient_beds",
+            "inpatient_beds_coverage",
+            "inpatient_beds_used",
+            "inpatient_beds_used_coverage",
+            "inpatient_beds_used_covid",
+            "inpatient_beds_used_covid_coverage",
+            "previous_day_admission_adult_covid_confirmed",
+            "previous_day_admission_adult_covid_confirmed_coverage",
+            "previous_day_admission_adult_covid_suspected",
+            "previous_day_admission_adult_covid_suspected_coverage",
+            "previous_day_admission_pediatric_covid_confirmed",
+            "previous_day_admission_pediatric_covid_confirmed_coverage",
+            "previous_day_admission_pediatric_covid_suspected",
+            "previous_day_admission_pediatric_covid_suspected_coverage",
+            "staffed_adult_icu_bed_occupancy",
+            "staffed_adult_icu_bed_occupancy_coverage",
+            "staffed_icu_adult_patients_confirmed_suspected_covid",
+            "staffed_icu_adult_patients_confirmed_suspected_covid_coverage",
+            "staffed_icu_adult_patients_confirmed_covid",
+            "staffed_icu_adult_patients_confirmed_covid_coverage",
+            "total_adult_patients_hosp_confirmed_suspected_covid",
+            "total_adult_patients_hosp_confirmed_suspected_covid_coverage",
+            "total_adult_patients_hosp_confirmed_covid",
+            "total_adult_patients_hosp_confirmed_covid_coverage",
+            "total_pediatric_patients_hosp_confirmed_suspected_covid",
+            "total_pediatric_patients_hosp_confirmed_suspected_covid_coverage",
+            "total_pediatric_patients_hosp_confirmed_covid",
+            "total_pediatric_patients_hosp_confirmed_covid_coverage",
+            "total_staffed_adult_icu_beds",
+            "total_staffed_adult_icu_beds_coverage",
+            "inpatient_beds_utilization_coverage",
+            "inpatient_beds_utilization_numerator",
+            "inpatient_beds_utilization_denominator",
+            "percent_of_inpatients_with_covid_coverage",
+            "percent_of_inpatients_with_covid_numerator",
+            "percent_of_inpatients_with_covid_denominator",
+            "inpatient_bed_covid_utilization_coverage",
+            "inpatient_bed_covid_utilization_numerator",
+            "inpatient_bed_covid_utilization_denominator",
+            "adult_icu_bed_covid_utilization_coverage",
+            "adult_icu_bed_covid_utilization_numerator",
+            "adult_icu_bed_covid_utilization_denominator",
+            "adult_icu_bed_utilization_coverage",
+            "adult_icu_bed_utilization_numerator",
+            "adult_icu_bed_utilization_denominator",
+        ]
+        fields_float = [
+            "inpatient_beds_utilization",
+            "percent_of_inpatients_with_covid",
+            "inpatient_bed_covid_utilization",
+            "adult_icu_bed_covid_utilization",
+            "adult_icu_bed_utilization",
+        ]
+
         return self._create_call(
             "covid_hosp_state_timeseries/",
             dict(states=states, dates=dates, issues=issues, as_of=as_of),
-        )
-
-    def covidcast(
-        self,
-        data_source: str,
-        signals: StringParam,
-        time_type: str,
-        geo_type: str,
-        time_values: EpiRangeParam,
-        geo_values: Union[int, str, Iterable[Union[int, str]]],
-        as_of: Union[None, str, int] = None,
-        issues: Optional[EpiRangeParam] = None,
-        lag: Optional[int] = None,
-    ) -> CALL_TYPE:
-        """Fetch Delphi's COVID-19 Surveillance Streams"""
-        if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_values))):
-            raise InvalidArgumentException(
-                "`data_source`, `signals`, `time_type`, `geo_type`, `time_values`, and `geo_values` are all required"
-            )
-        if issues is not None and lag is not None:
-            raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-
-        return self._create_call(
-            "covidcast/",
-            dict(
-                data_source=data_source,
-                signals=signals,
-                time_type=time_type,
-                geo_type=geo_type,
-                time_values=time_values,
-                as_of=as_of,
-                issues=issues,
-                lag=lag,
-                geo_values=geo_values,
-            ),
+            [
+                EpidataFieldInfo("state", EpidataFieldType.text),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("date", EpidataFieldType.date),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("critical_staffing_shortage_today_yes", EpidataFieldType.bool),
+                EpidataFieldInfo("critical_staffing_shortage_today_no", EpidataFieldType.bool),
+                EpidataFieldInfo("critical_staffing_shortage_today_not_reported", EpidataFieldType.bool),
+                EpidataFieldInfo("critical_staffing_shortage_anticipated_within_week_yes", EpidataFieldType.bool),
+                EpidataFieldInfo("critical_staffing_shortage_anticipated_within_week_no", EpidataFieldType.bool),
+                EpidataFieldInfo(
+                    "critical_staffing_shortage_anticipated_within_week_not_reported", EpidataFieldType.bool
+                ),
+                *[EpidataFieldInfo(k, EpidataFieldType.int) for k in fields_int],
+                *[EpidataFieldInfo(k, EpidataFieldType.float) for k in fields_float],
+            ],
         )
 
     def covidcast_meta(self) -> CALL_TYPE:
@@ -170,6 +348,22 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "covidcast_meta/",
             {},
+            [
+                EpidataFieldInfo("data_source", EpidataFieldType.text),
+                EpidataFieldInfo("signal", EpidataFieldType.text),
+                EpidataFieldInfo("time_type", EpidataFieldType.categorical, categories=["week", "day"]),
+                EpidataFieldInfo("min_time", EpidataFieldType.date),
+                EpidataFieldInfo("max_time", EpidataFieldType.date),
+                EpidataFieldInfo("num_locations", EpidataFieldType.int),
+                EpidataFieldInfo("min_value", EpidataFieldType.float),
+                EpidataFieldInfo("max_value", EpidataFieldType.float),
+                EpidataFieldInfo("mean_value", EpidataFieldType.float),
+                EpidataFieldInfo("stdev_value", EpidataFieldType.float),
+                EpidataFieldInfo("last_update", EpidataFieldType.int),
+                EpidataFieldInfo("max_issue", EpidataFieldType.date),
+                EpidataFieldInfo("min_lag", EpidataFieldType.int),
+                EpidataFieldInfo("max_lag", EpidataFieldType.int),
+            ],
         )
 
     def covidcast_nowcast(
@@ -209,6 +403,70 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
                 lag=lag,
                 geo_values=geo_values,
             ),
+            [
+                EpidataFieldInfo("geo_value", EpidataFieldType.text),
+                EpidataFieldInfo("signal", EpidataFieldType.text),
+                EpidataFieldInfo("time_value", EpidataFieldType.date),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+            ],
+        )
+
+    def covidcast(
+        self,
+        data_source: str,
+        signals: StringParam,
+        time_type: str,
+        geo_type: str,
+        time_values: EpiRangeParam,
+        geo_values: Union[int, str, Iterable[Union[int, str]]],
+        as_of: Union[None, str, int] = None,
+        issues: Optional[EpiRangeParam] = None,
+        lag: Optional[int] = None,
+    ) -> CALL_TYPE:
+        """Fetch Delphi's COVID-19 Surveillance Streams"""
+        if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_values))):
+            raise InvalidArgumentException(
+                "`data_source`, `signals`, `time_type`, `geo_type`, `time_values`, and `geo_values` are all required"
+            )
+        if issues is not None and lag is not None:
+            raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
+
+        return self._create_call(
+            "covidcast/",
+            dict(
+                data_source=data_source,
+                signals=signals,
+                time_type=time_type,
+                geo_type=geo_type,
+                time_values=time_values,
+                as_of=as_of,
+                issues=issues,
+                lag=lag,
+                geo_values=geo_values,
+            ),
+            [
+                EpidataFieldInfo("source", EpidataFieldType.text),
+                EpidataFieldInfo("signal", EpidataFieldType.text),
+                EpidataFieldInfo(
+                    "geo_type",
+                    EpidataFieldType.categorical,
+                    categories=["nation", "msa", "hrr", "hhs", "state", "county"],
+                ),
+                EpidataFieldInfo("geo_value", EpidataFieldType.text),
+                EpidataFieldInfo("time_type", EpidataFieldType.categorical, categories=["day", "week"]),
+                EpidataFieldInfo("time_value", EpidataFieldType.date),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+                EpidataFieldInfo("stderr", EpidataFieldType.float),
+                EpidataFieldInfo("sample_size", EpidataFieldType.int),
+                EpidataFieldInfo("direction", EpidataFieldType.float),
+                EpidataFieldInfo("missing_value", EpidataFieldType.int),
+                EpidataFieldInfo("missing_stderr", EpidataFieldType.int),
+                EpidataFieldInfo("missing_sample_size", EpidataFieldType.int),
+            ],
         )
 
     def delphi(self, system: str, epiweek: Union[int, str]) -> CALL_TYPE:
@@ -219,6 +477,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "delphi/",
             dict(system=system, epiweek=epiweek),
+            [
+                EpidataFieldInfo("system", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("json", EpidataFieldType.text),
+            ],
         )
 
     def dengue_nowcast(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -229,6 +492,12 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "dengue_nowcast/",
             dict(locations=locations, epiweeks=epiweeks),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+                EpidataFieldInfo("std", EpidataFieldType.float),
+            ],
         )
 
     def dengue_sensors(
@@ -242,6 +511,12 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "dengue_sensors/",
             dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks),
+            [
+                EpidataFieldInfo("name", EpidataFieldType.text),
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+            ],
         )
 
     def ecdc_ili(
@@ -259,6 +534,14 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "ecdc_ili/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
+            [
+                EpidataFieldInfo("region", EpidataFieldType.text),
+                EpidataFieldInfo("release_date", EpidataFieldType.date),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("incidence_rate", EpidataFieldType.float),
+            ],
         )
 
     def flusurv(
@@ -277,23 +560,19 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "flusurv/",
             dict(locations=locations, epiweeks=epiweeks, issues=issues, lag=lag),
-        )
-
-    def fluview(
-        self,
-        regions: StringParam,
-        epiweeks: EpiRangeParam,
-        issues: Optional[EpiRangeParam] = None,
-        lag: Optional[int] = None,
-        auth: Optional[str] = None,
-    ) -> CALL_TYPE:
-        if regions is None or epiweeks is None:
-            raise InvalidArgumentException("`regions` and `epiweeks` are both required")
-        if issues is not None and lag is not None:
-            raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
-        return self._create_call(
-            "fluview/",
-            dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag, auth=auth),
+            [
+                EpidataFieldInfo("release_date", EpidataFieldType.text),
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("rage_age_0", EpidataFieldType.float),
+                EpidataFieldInfo("rage_age_1", EpidataFieldType.float),
+                EpidataFieldInfo("rage_age_2", EpidataFieldType.float),
+                EpidataFieldInfo("rage_age_3", EpidataFieldType.float),
+                EpidataFieldInfo("rage_age_4", EpidataFieldType.float),
+                EpidataFieldInfo("rage_overall", EpidataFieldType.float),
+            ],
         )
 
     def fluview_clinical(
@@ -312,12 +591,64 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "fluview_clinical/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
+            [
+                EpidataFieldInfo("release_date", EpidataFieldType.text),
+                EpidataFieldInfo("region", EpidataFieldType.text),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("total_specimens", EpidataFieldType.int),
+                EpidataFieldInfo("total_a", EpidataFieldType.int),
+                EpidataFieldInfo("total_b", EpidataFieldType.int),
+                EpidataFieldInfo("percent_positive", EpidataFieldType.float),
+                EpidataFieldInfo("percent_a", EpidataFieldType.float),
+                EpidataFieldInfo("percent_b", EpidataFieldType.float),
+            ],
         )
 
     def fluview_meta(self) -> CALL_TYPE:
         return self._create_call(
             "fluview_meta",
             {},
+            [
+                EpidataFieldInfo("latest_update", EpidataFieldType.text),
+                EpidataFieldInfo("latest_issue", EpidataFieldType.date),
+                EpidataFieldInfo("table_rows", EpidataFieldType.int),
+            ],
+        )
+
+    def fluview(
+        self,
+        regions: StringParam,
+        epiweeks: EpiRangeParam,
+        issues: Optional[EpiRangeParam] = None,
+        lag: Optional[int] = None,
+        auth: Optional[str] = None,
+    ) -> CALL_TYPE:
+        if regions is None or epiweeks is None:
+            raise InvalidArgumentException("`regions` and `epiweeks` are both required")
+        if issues is not None and lag is not None:
+            raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
+        return self._create_call(
+            "fluview/",
+            dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag, auth=auth),
+            [
+                EpidataFieldInfo("release_date", EpidataFieldType.text),
+                EpidataFieldInfo("region", EpidataFieldType.text),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("num_ili", EpidataFieldType.int),
+                EpidataFieldInfo("num_patients", EpidataFieldType.int),
+                EpidataFieldInfo("num_age_0", EpidataFieldType.int),
+                EpidataFieldInfo("num_age_1", EpidataFieldType.int),
+                EpidataFieldInfo("num_age_2", EpidataFieldType.int),
+                EpidataFieldInfo("num_age_3", EpidataFieldType.int),
+                EpidataFieldInfo("num_age_4", EpidataFieldType.int),
+                EpidataFieldInfo("num_age_5", EpidataFieldType.int),
+                EpidataFieldInfo("wili", EpidataFieldType.float),
+                EpidataFieldInfo("ili", EpidataFieldType.float),
+            ],
         )
 
     def gft(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -327,6 +658,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "gft/",
             dict(locations=locations, epiweeks=epiweeks),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("num", EpidataFieldType.int),
+            ],
         )
 
     def ght(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
@@ -336,6 +672,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "ght/",
             dict(auth=auth, locations=locations, epiweeks=epiweeks, query=query),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+            ],
         )
 
     def kcdc_ili(
@@ -353,13 +694,14 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "kcdc_ili/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
-        )
-
-    def meta(self) -> CALL_TYPE:
-        """Fetch API metadata."""
-        return self._create_call(
-            "meta/",
-            {},
+            [
+                EpidataFieldInfo("release_date", EpidataFieldType.text),
+                EpidataFieldInfo("region", EpidataFieldType.text),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("ili", EpidataFieldType.float),
+            ],
         )
 
     def meta_afhsb(self, auth: str) -> CALL_TYPE:
@@ -383,6 +725,13 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             dict(auth=auth),
         )
 
+    def meta(self) -> CALL_TYPE:
+        """Fetch API metadata."""
+        return self._create_call(
+            "meta/",
+            {},
+        )
+
     def nidss_dengue(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch NIDSS dengue data."""
 
@@ -392,6 +741,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "nidss_dengue/",
             dict(locations=locations, epiweeks=epiweeks),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("count", EpidataFieldType.int),
+            ],
         )
 
     def nidss_flu(
@@ -411,6 +765,15 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "nidss_flu/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
+            [
+                EpidataFieldInfo("release_date", EpidataFieldType.text),
+                EpidataFieldInfo("region", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("visits", EpidataFieldType.int),
+                EpidataFieldInfo("ili", EpidataFieldType.float),
+            ],
         )
 
     def norostat(self, auth: str, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -421,6 +784,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "norostat/",
             dict(auth=auth, epiweeks=epiweeks, location=location),
+            [
+                EpidataFieldInfo("release_date", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("value", EpidataFieldType.int),
+            ],
         )
 
     def nowcast(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -432,6 +800,12 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "nowcast/",
             dict(locations=locations, epiweeks=epiweeks),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+                EpidataFieldInfo("std", EpidataFieldType.float),
+            ],
         )
 
     def paho_dengue(
@@ -450,6 +824,19 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "paho_dengue/",
             dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
+            [
+                EpidataFieldInfo("release_date", EpidataFieldType.text),
+                EpidataFieldInfo("region", EpidataFieldType.text),
+                EpidataFieldInfo("serotype", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("issue", EpidataFieldType.date),
+                EpidataFieldInfo("lag", EpidataFieldType.int),
+                EpidataFieldInfo("total_pop", EpidataFieldType.int),
+                EpidataFieldInfo("num_dengue", EpidataFieldType.int),
+                EpidataFieldInfo("num_severe", EpidataFieldType.int),
+                EpidataFieldInfo("num_deaths", EpidataFieldType.int),
+                EpidataFieldInfo("incidence_rate", EpidataFieldType.float),
+            ],
         )
 
     def quidel(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
@@ -461,6 +848,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "quidel/",
             dict(auth=auth, epiweeks=epiweeks, locations=locations),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+            ],
         )
 
     def sensors(self, auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -471,6 +863,12 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "sensors/",
             dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks),
+            [
+                EpidataFieldInfo("name", EpidataFieldType.text),
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+            ],
         )
 
     def twitter(
@@ -489,6 +887,15 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "twitter/",
             dict(auth=auth, locations=locations, dates=dates, epiweeks=epiweeks),
+            [
+                EpidataFieldInfo("location", EpidataFieldType.text),
+                EpidataFieldInfo("date", EpidataFieldType.date)
+                if dates
+                else EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("num", EpidataFieldType.int),
+                EpidataFieldInfo("total", EpidataFieldType.int),
+                EpidataFieldInfo("percent", EpidataFieldType.float),
+            ],
         )
 
     def wiki(
@@ -508,4 +915,14 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "wiki/",
             dict(articles=articles, dates=dates, epiweeks=epiweeks, hours=hours, language=language),
+            [
+                EpidataFieldInfo("article", EpidataFieldType.text),
+                EpidataFieldInfo("date", EpidataFieldType.date)
+                if dates
+                else EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
+                EpidataFieldInfo("count", EpidataFieldType.int),
+                EpidataFieldInfo("total", EpidataFieldType.int),
+                EpidataFieldInfo("hour", EpidataFieldType.int),
+                EpidataFieldInfo("value", EpidataFieldType.float),
+            ],
         )
