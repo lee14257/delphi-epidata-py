@@ -33,11 +33,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
     ) -> CALL_TYPE:
         raise NotImplementedError()
 
-    def afhsb(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam) -> CALL_TYPE:
+    def afhsb(self, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam) -> CALL_TYPE:
         """Fetch AFHSB data (point data, no min/max)."""
 
-        if auth is None or locations is None or epiweeks is None or flu_types is None:
-            raise InvalidArgumentException("`auth`, `locations`, `epiweeks` and `flu_types` are all required")
+        if locations is None or epiweeks is None or flu_types is None:
+            raise InvalidArgumentException("`locations`, `epiweeks` and `flu_types` are all required")
 
         loc_exception = (
             "Location parameter  `{}` is invalid. Valid `location` parameters are: "
@@ -67,7 +67,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
 
         return self._create_call(
             "afhsb/",
-            dict(auth=auth, locations=locations, epiweeks=epiweeks, flu_types=flu_types),
+            dict(locations=locations, epiweeks=epiweeks, flu_types=flu_types),
             [
                 EpidataFieldInfo("location", EpidataFieldType.text),
                 EpidataFieldInfo("flu_type", EpidataFieldType.text),
@@ -76,15 +76,15 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def cdc(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
+    def cdc(self, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
         """Fetch CDC page hits."""
 
-        if auth is None or epiweeks is None or locations is None:
-            raise InvalidArgumentException("`auth`, `epiweeks`, and `locations` are all required")
+        if epiweeks is None or locations is None:
+            raise InvalidArgumentException("`epiweeks`, and `locations` are all required")
 
         return self._create_call(
             "cdc/",
-            dict(auth=auth, epiweeks=epiweeks, locations=locations),
+            dict(epiweeks=epiweeks, locations=locations),
             [
                 EpidataFieldInfo("location", EpidataFieldType.text),
                 EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
@@ -500,17 +500,15 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def dengue_sensors(
-        self, auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam
-    ) -> CALL_TYPE:
+    def dengue_sensors(self, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch Delphi's digital surveillance sensors."""
 
-        if auth is None or names is None or locations is None or epiweeks is None:
-            raise InvalidArgumentException("`auth`, `names`, `locations`, and `epiweeks` are all required")
+        if names is None or locations is None or epiweeks is None:
+            raise InvalidArgumentException("`names`, `locations`, and `epiweeks` are all required")
 
         return self._create_call(
             "dengue_sensors/",
-            dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks),
+            dict(names=names, locations=locations, epiweeks=epiweeks),
             [
                 EpidataFieldInfo("name", EpidataFieldType.text),
                 EpidataFieldInfo("location", EpidataFieldType.text),
@@ -623,7 +621,6 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         epiweeks: EpiRangeParam,
         issues: Optional[EpiRangeParam] = None,
         lag: Optional[int] = None,
-        auth: Optional[str] = None,
     ) -> CALL_TYPE:
         if regions is None or epiweeks is None:
             raise InvalidArgumentException("`regions` and `epiweeks` are both required")
@@ -631,7 +628,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             raise InvalidArgumentException("`issues` and `lag` are mutually exclusive")
         return self._create_call(
             "fluview/",
-            dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag, auth=auth),
+            dict(regions=regions, epiweeks=epiweeks, issues=issues, lag=lag),
             [
                 EpidataFieldInfo("release_date", EpidataFieldType.text),
                 EpidataFieldInfo("region", EpidataFieldType.text),
@@ -665,13 +662,13 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def ght(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
+    def ght(self, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
         """Fetch Google Health Trends data."""
-        if auth is None or locations is None or epiweeks is None or query is None:
-            raise InvalidArgumentException("`auth`, `locations`, `epiweeks`, and `query` are all required")
+        if locations is None or epiweeks is None or query is None:
+            raise InvalidArgumentException("`locations`, `epiweeks`, and `query` are all required")
         return self._create_call(
             "ght/",
-            dict(auth=auth, locations=locations, epiweeks=epiweeks, query=query),
+            dict(locations=locations, epiweeks=epiweeks, query=query),
             [
                 EpidataFieldInfo("location", EpidataFieldType.text),
                 EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
@@ -704,25 +701,19 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def meta_afhsb(self, auth: str) -> CALL_TYPE:
+    def meta_afhsb(self) -> CALL_TYPE:
         """Fetch AFHSB metadata."""
-
-        if auth is None:
-            raise InvalidArgumentException("`auth` is required")
-
         return self._create_call(
             "meta_afhsb/",
-            dict(auth=auth),
+            dict(),
         )
 
-    def meta_norostat(self, auth: str) -> CALL_TYPE:
+    def meta_norostat(self) -> CALL_TYPE:
         """Fetch NoroSTAT metadata."""
 
-        if auth is None:
-            raise InvalidArgumentException("`auth` is required")
         return self._create_call(
             "meta_norostat/",
-            dict(auth=auth),
+            dict(),
         )
 
     def meta(self) -> CALL_TYPE:
@@ -776,14 +767,14 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def norostat(self, auth: str, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
+    def norostat(self, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch NoroSTAT data (point data, no min/max)."""
 
-        if auth is None or location is None or epiweeks is None:
-            raise InvalidArgumentException("`auth`, `location`, and `epiweeks` are all required")
+        if location is None or epiweeks is None:
+            raise InvalidArgumentException("`location`, and `epiweeks` are all required")
         return self._create_call(
             "norostat/",
-            dict(auth=auth, epiweeks=epiweeks, location=location),
+            dict(epiweeks=epiweeks, location=location),
             [
                 EpidataFieldInfo("release_date", EpidataFieldType.text),
                 EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
@@ -839,15 +830,15 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def quidel(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
+    def quidel(self, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
         """Fetch Quidel data."""
 
-        if auth is None or epiweeks is None or locations is None:
-            raise InvalidArgumentException("`auth`, `epiweeks`, and `locations` are all required")
+        if epiweeks is None or locations is None:
+            raise InvalidArgumentException("`epiweeks`, and `locations` are all required")
 
         return self._create_call(
             "quidel/",
-            dict(auth=auth, epiweeks=epiweeks, locations=locations),
+            dict(epiweeks=epiweeks, locations=locations),
             [
                 EpidataFieldInfo("location", EpidataFieldType.text),
                 EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
@@ -855,14 +846,14 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def sensors(self, auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
+    def sensors(self, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch Delphi's digital surveillance sensors."""
 
-        if auth is None or names is None or locations is None or epiweeks is None:
-            raise InvalidArgumentException("`auth`, `names`, `locations`, and `epiweeks` are all required")
+        if names is None or locations is None or epiweeks is None:
+            raise InvalidArgumentException("`names`, `locations`, and `epiweeks` are all required")
         return self._create_call(
             "sensors/",
-            dict(auth=auth, names=names, locations=locations, epiweeks=epiweeks),
+            dict(names=names, locations=locations, epiweeks=epiweeks),
             [
                 EpidataFieldInfo("name", EpidataFieldType.text),
                 EpidataFieldInfo("location", EpidataFieldType.text),
@@ -873,20 +864,19 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
 
     def twitter(
         self,
-        auth: str,
         locations: StringParam,
         dates: Optional[EpiRangeParam] = None,
         epiweeks: Optional[EpiRangeParam] = None,
     ) -> CALL_TYPE:
         """Fetch HealthTweets data."""
 
-        if auth is None or locations is None:
-            raise InvalidArgumentException("`auth` and `locations` are both required")
+        if locations is None:
+            raise InvalidArgumentException("`locations` is required")
         if not (dates is None) ^ (epiweeks is None):
             raise InvalidArgumentException("exactly one of `dates` and `epiweeks` is required")
         return self._create_call(
             "twitter/",
-            dict(auth=auth, locations=locations, dates=dates, epiweeks=epiweeks),
+            dict(locations=locations, dates=dates, epiweeks=epiweeks),
             [
                 EpidataFieldInfo("location", EpidataFieldType.text),
                 EpidataFieldInfo("date", EpidataFieldType.date)

@@ -17,6 +17,7 @@ from json import loads
 
 from asyncio import get_event_loop, gather
 from aiohttp import TCPConnector, ClientSession, ClientResponse
+from aiohttp.helpers import BasicAuth
 from pandas import DataFrame
 
 from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange, EpidataFieldInfo
@@ -25,12 +26,12 @@ from ._constants import HTTP_HEADERS, BASE_URL
 
 
 async def _async_request(
-    url: str, params: Mapping[str, str], session: Optional[ClientSession] = None
+    url: str, params: Mapping[str, str], api_key: str, session: Optional[ClientSession] = None
 ) -> ClientResponse:
     async def call_impl(s: ClientSession) -> ClientResponse:
-        res = await s.get(url, params=params, headers=HTTP_HEADERS)
+        res = await s.get(url, params=params, headers=HTTP_HEADERS, auth=BasicAuth("epidata", api_key))
         if res.status == 414:
-            return await s.post(url, params=params, headers=HTTP_HEADERS)
+            return await s.post(url, params=params, headers=HTTP_HEADERS, auth=BasicAuth("epidata", api_key))
         return res
 
     if session:
@@ -50,19 +51,23 @@ class EpiDataAsyncCall(AEpiDataCall):
     def __init__(
         self,
         base_url: str,
+        api_key: str,
         session: Optional[ClientSession],
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
     ) -> None:
-        super().__init__(base_url, endpoint, params, meta)
+        super().__init__(base_url, api_key, endpoint, params, meta)
         self._session = session
 
     def with_base_url(self, base_url: str) -> "EpiDataAsyncCall":
-        return EpiDataAsyncCall(base_url, self._session, self._endpoint, self._params)
+        return EpiDataAsyncCall(base_url, self._api_key, self._session, self._endpoint, self._params)
 
     def with_session(self, session: ClientSession) -> "EpiDataAsyncCall":
-        return EpiDataAsyncCall(self._base_url, session, self._endpoint, self._params)
+        return EpiDataAsyncCall(self._base_url, self._api_key, session, self._endpoint, self._params)
+
+    def with_api_key(self, api_key: str) -> "EpiDataAsyncCall":
+        return EpiDataAsyncCall(self._base_url, api_key, self._session, self._endpoint, self._params)
 
     async def _call(
         self,
@@ -70,7 +75,7 @@ class EpiDataAsyncCall(AEpiDataCall):
         fields: Optional[Iterable[str]] = None,
     ) -> ClientResponse:
         url, params = self.request_arguments(format_type, fields)
-        return await _async_request(url, params, self._session)
+        return await _async_request(url, params, self._api_key, self._session)
 
     async def classic(self, fields: Optional[Iterable[str]] = None) -> EpiDataResponse:
         """Request and parse epidata in CLASSIC message format."""
@@ -123,24 +128,29 @@ class EpiDataAsyncCall(AEpiDataCall):
         return self.iter()
 
 
-class EpiDataAsyncContext(AEpiDataEndpoints[EpiDataAsyncCall]):
+class Epidata(AEpiDataEndpoints[EpiDataAsyncCall]):
     """
-    sync epidata call class
+    async epidata call class
     """
 
     _base_url: Final[str]
+    _api_key: Final[str]
     _session: Final[Optional[ClientSession]]
 
-    def __init__(self, base_url: str = BASE_URL, session: Optional[ClientSession] = None) -> None:
+    def __init__(self, api_key: str, base_url: str = BASE_URL, session: Optional[ClientSession] = None) -> None:
         super().__init__()
+        self._api_key = api_key
         self._base_url = base_url
         self._session = session
 
-    def with_base_url(self, base_url: str) -> "EpiDataAsyncContext":
-        return EpiDataAsyncContext(base_url, self._session)
+    def with_base_url(self, base_url: str) -> "Epidata":
+        return Epidata(self._api_key, base_url, self._session)
 
-    def with_session(self, session: ClientSession) -> "EpiDataAsyncContext":
-        return EpiDataAsyncContext(self._base_url, session)
+    def with_session(self, session: ClientSession) -> "Epidata":
+        return Epidata(self._api_key, self._base_url, session)
+
+    def with_api_key(self, api_key: str) -> "Epidata":
+        return Epidata(api_key, self._base_url, self._session)
 
     def _create_call(
         self,
@@ -148,7 +158,7 @@ class EpiDataAsyncContext(AEpiDataEndpoints[EpiDataAsyncCall]):
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
     ) -> EpiDataAsyncCall:
-        return EpiDataAsyncCall(self._base_url, self._session, endpoint, params, meta)
+        return EpiDataAsyncCall(self._base_url, self._api_key, self._session, endpoint, params, meta)
 
     @staticmethod
     def all(
@@ -216,7 +226,4 @@ class EpiDataAsyncContext(AEpiDataEndpoints[EpiDataAsyncCall]):
         return self.all(calls, call_api, batch_size)
 
 
-Epidata = EpiDataAsyncContext()
-
-
-__all__ = ["Epidata", "EpiDataAsyncCall", "EpiDataAsyncContext", "EpiRange"]
+__all__ = ["Epidata", "EpiDataAsyncCall", "EpiRange"]

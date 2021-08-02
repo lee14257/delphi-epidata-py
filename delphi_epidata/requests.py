@@ -13,14 +13,14 @@ from ._constants import HTTP_HEADERS, BASE_URL
 
 @retry(reraise=True, stop=stop_after_attempt(2))
 def _request_with_retry(
-    url: str, params: Mapping[str, str], session: Optional[Session] = None, stream: bool = False
+    url: str, params: Mapping[str, str], api_key: str, session: Optional[Session] = None, stream: bool = False
 ) -> Response:
     """Make request with a retry if an exception is thrown."""
 
     def call_impl(s: Session) -> Response:
-        res = s.get(url, params=params, headers=HTTP_HEADERS, stream=stream)
+        res = s.get(url, params=params, headers=HTTP_HEADERS, stream=stream, auth=("epidata", api_key))
         if res.status_code == 414:
-            return s.post(url, params=params, headers=HTTP_HEADERS, stream=stream)
+            return s.post(url, params=params, headers=HTTP_HEADERS, stream=stream, auth=("epidata", api_key))
         return res
 
     if session:
@@ -40,19 +40,23 @@ class EpiDataCall(AEpiDataCall):
     def __init__(
         self,
         base_url: str,
+        api_key: str,
         session: Optional[Session],
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
     ) -> None:
-        super().__init__(base_url, endpoint, params, meta)
+        super().__init__(base_url, api_key, endpoint, params, meta)
         self._session = session
 
     def with_base_url(self, base_url: str) -> "EpiDataCall":
-        return EpiDataCall(base_url, self._session, self._endpoint, self._params)
+        return EpiDataCall(base_url, self._api_key, self._session, self._endpoint, self._params)
 
     def with_session(self, session: Session) -> "EpiDataCall":
-        return EpiDataCall(self._base_url, session, self._endpoint, self._params)
+        return EpiDataCall(self._base_url, self._api_key, session, self._endpoint, self._params)
+
+    def with_api_key(self, api_key: str) -> "EpiDataCall":
+        return EpiDataCall(self._base_url, api_key, self._session, self._endpoint, self._params)
 
     def _call(
         self,
@@ -61,7 +65,7 @@ class EpiDataCall(AEpiDataCall):
         stream: bool = False,
     ) -> Response:
         url, params = self.request_arguments(format_type, fields)
-        return _request_with_retry(url, params, self._session, stream)
+        return _request_with_retry(url, params, self._api_key, self._session, stream)
 
     def classic(self, fields: Optional[Iterable[str]] = None) -> EpiDataResponse:
         """Request and parse epidata in CLASSIC message format."""
@@ -110,24 +114,29 @@ class EpiDataCall(AEpiDataCall):
         return self.iter()
 
 
-class EpiDataContext(AEpiDataEndpoints[EpiDataCall]):
+class Epidata(AEpiDataEndpoints[EpiDataCall]):
     """
     sync epidata call class
     """
 
     _base_url: Final[str]
+    _api_key: Final[str]
     _session: Final[Optional[Session]]
 
-    def __init__(self, base_url: str = BASE_URL, session: Optional[Session] = None) -> None:
+    def __init__(self, api_key: str, base_url: str = BASE_URL, session: Optional[Session] = None) -> None:
         super().__init__()
+        self._api_key = api_key
         self._base_url = base_url
         self._session = session
 
-    def with_base_url(self, base_url: str) -> "EpiDataContext":
-        return EpiDataContext(base_url, self._session)
+    def with_base_url(self, base_url: str) -> "Epidata":
+        return Epidata(self._api_key, base_url, self._session)
 
-    def with_session(self, session: Session) -> "EpiDataContext":
-        return EpiDataContext(self._base_url, session)
+    def with_session(self, session: Session) -> "Epidata":
+        return Epidata(self._api_key, self._base_url, session)
+
+    def with_api_key(self, api_key: str) -> "Epidata":
+        return Epidata(api_key, self._base_url, self._session)
 
     def _create_call(
         self,
@@ -135,10 +144,7 @@ class EpiDataContext(AEpiDataEndpoints[EpiDataCall]):
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
     ) -> EpiDataCall:
-        return EpiDataCall(self._base_url, self._session, endpoint, params, meta)
+        return EpiDataCall(self._base_url, self._api_key, self._session, endpoint, params, meta)
 
 
-Epidata = EpiDataContext()
-
-
-__all__ = ["Epidata", "EpiDataCall", "EpiDataContext", "EpiRange"]
+__all__ = ["Epidata", "EpiDataCall", "EpiRange"]
