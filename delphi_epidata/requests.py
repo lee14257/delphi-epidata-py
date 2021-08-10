@@ -6,7 +6,15 @@ from requests import Response, Session
 from tenacity import retry, stop_after_attempt
 from pandas import DataFrame
 
-from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange, EpidataFieldInfo
+from ._model import (
+    EpiRangeLike,
+    AEpiDataCall,
+    EpiDataFormatType,
+    EpiDataResponse,
+    EpiRange,
+    EpidataFieldInfo,
+    OnlySupportsClassicFormatException,
+)
 from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
 
@@ -44,8 +52,9 @@ class EpiDataCall(AEpiDataCall):
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> None:
-        super().__init__(base_url, endpoint, params, meta)
+        super().__init__(base_url, endpoint, params, meta, only_supports_classic)
         self._session = session
 
     def with_base_url(self, base_url: str) -> "EpiDataCall":
@@ -87,6 +96,8 @@ class EpiDataCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> List[Mapping[str, Union[str, int, float, date, None]]]:
         """Request and parse epidata in JSON format"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         response = self._call(EpiDataFormatType.json, fields)
         response.raise_for_status()
         return [
@@ -96,11 +107,15 @@ class EpiDataCall(AEpiDataCall):
 
     def df(self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         r = self.json(fields)
         return self._as_df(r, disable_date_parsing=disable_date_parsing)
 
     def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         response = self._call(EpiDataFormatType.csv, fields)
         response.raise_for_status()
         return response.text
@@ -109,6 +124,8 @@ class EpiDataCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> Generator[Mapping[str, Union[str, int, float, date, None]], None, Response]:
         """Request and streams epidata rows"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         response = self._call(EpiDataFormatType.jsonl, fields, stream=True)
         response.raise_for_status()
         for line in response.iter_lines():
@@ -143,8 +160,9 @@ class EpiDataContext(AEpiDataEndpoints[EpiDataCall]):
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> EpiDataCall:
-        return EpiDataCall(self._base_url, self._session, endpoint, params, meta)
+        return EpiDataCall(self._base_url, self._session, endpoint, params, meta, only_supports_classic)
 
 
 Epidata = EpiDataContext()

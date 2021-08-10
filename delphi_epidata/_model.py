@@ -88,6 +88,12 @@ class InvalidArgumentException(Exception):
     """
 
 
+class OnlySupportsClassicFormatException(Exception):
+    """
+    the endpoint only supports the classic message format, due to an non-standard behavior
+    """
+
+
 class EpidataFieldType(Enum):
     """
     field type
@@ -124,6 +130,7 @@ class AEpiDataCall:
     _params: Final[Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]]]
     meta: Final[Sequence[EpidataFieldInfo]]
     meta_by_name: Final[Mapping[str, EpidataFieldInfo]]
+    only_supports_classic: Final[bool]
 
     def __init__(
         self,
@@ -131,10 +138,12 @@ class AEpiDataCall:
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> None:
         self._base_url = base_url
         self._endpoint = endpoint
         self._params = params
+        self.only_supports_classic = only_supports_classic
         self.meta = meta or []
         self.meta_by_name = {k.name: k for k in self.meta}
 

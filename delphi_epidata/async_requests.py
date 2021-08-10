@@ -19,7 +19,15 @@ from asyncio import get_event_loop, gather
 from aiohttp import TCPConnector, ClientSession, ClientResponse
 from pandas import DataFrame
 
-from ._model import EpiRangeLike, AEpiDataCall, EpiDataFormatType, EpiDataResponse, EpiRange, EpidataFieldInfo
+from ._model import (
+    EpiRangeLike,
+    AEpiDataCall,
+    EpiDataFormatType,
+    EpiDataResponse,
+    EpiRange,
+    EpidataFieldInfo,
+    OnlySupportsClassicFormatException,
+)
 from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
 
@@ -54,8 +62,9 @@ class EpiDataAsyncCall(AEpiDataCall):
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> None:
-        super().__init__(base_url, endpoint, params, meta)
+        super().__init__(base_url, endpoint, params, meta, only_supports_classic)
         self._session = session
 
     def with_base_url(self, base_url: str) -> "EpiDataAsyncCall":
@@ -96,6 +105,8 @@ class EpiDataAsyncCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> List[Mapping[str, Union[str, int, float, date, None]]]:
         """Request and parse epidata in JSON format"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         response = await self._call(EpiDataFormatType.json, fields)
         response.raise_for_status()
         return [
@@ -107,11 +118,15 @@ class EpiDataAsyncCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         r = await self.json(fields, disable_date_parsing=disable_date_parsing)
         return self._as_df(r, disable_date_parsing)
 
     async def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         response = await self._call(EpiDataFormatType.csv, fields)
         response.raise_for_status()
         return await response.text()
@@ -120,6 +135,8 @@ class EpiDataAsyncCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> AsyncGenerator[Mapping[str, Union[str, int, float, date, None]], None]:
         """Request and streams epidata rows"""
+        if self.only_supports_classic:
+            raise OnlySupportsClassicFormatException()
         response = await self._call(EpiDataFormatType.jsonl, fields)
         response.raise_for_status()
         async for line in response.content:
@@ -153,8 +170,9 @@ class EpiDataAsyncContext(AEpiDataEndpoints[EpiDataAsyncCall]):
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> EpiDataAsyncCall:
-        return EpiDataAsyncCall(self._base_url, self._session, endpoint, params, meta)
+        return EpiDataAsyncCall(self._base_url, self._session, endpoint, params, meta, only_supports_classic)
 
     @staticmethod
     def all(

@@ -30,6 +30,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> CALL_TYPE:
         raise NotImplementedError()
 
@@ -484,6 +485,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
                 EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
                 EpidataFieldInfo("json", EpidataFieldType.text),
             ],
+            only_supports_classic=True,
         )
 
     def dengue_nowcast(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -715,6 +717,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "meta_afhsb/",
             dict(auth=auth),
+            only_supports_classic=True,
         )
 
     def pvt_meta_norostat(self, auth: str) -> CALL_TYPE:
@@ -725,6 +728,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "meta_norostat/",
             dict(auth=auth),
+            only_supports_classic=True,
         )
 
     def meta(self) -> CALL_TYPE:
@@ -732,6 +736,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         return self._create_call(
             "meta/",
             {},
+            only_supports_classic=True,
         )
 
     def nidss_dengue(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
