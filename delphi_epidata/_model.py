@@ -191,29 +191,40 @@ class AEpiDataCall:
     def __str__(self) -> str:
         return self.request_url()
 
-    def _parse_value(self, key: str, value: Union[str, float, int, None]) -> Union[str, float, int, date, None]:
+    def _parse_value(
+        self, key: str, value: Union[str, float, int, None], disable_date_parsing: Optional[bool] = False
+    ) -> Union[str, float, int, date, None]:
         meta = self.meta_by_name.get(key)
         if not meta or value is None:
             return value
-        if meta.type == EpidataFieldType.date:
+        if meta.type == EpidataFieldType.date and not disable_date_parsing:
             return parse_api_date(value)
-        if meta.type == EpidataFieldType.epiweek:
+        if meta.type == EpidataFieldType.epiweek and not disable_date_parsing:
             return parse_api_week(value)
         if meta.type == EpidataFieldType.bool:
             return bool(value)
         return value
 
     def _parse_row(
-        self, row: Mapping[str, Union[str, float, int, None]]
+        self, row: Mapping[str, Union[str, float, int, None]], disable_date_parsing: Optional[bool] = False
     ) -> Mapping[str, Union[str, float, int, date, None]]:
         if not self.meta:
             return row
-        return {k: self._parse_value(k, v) for k, v in row.items()}
+        return {k: self._parse_value(k, v, disable_date_parsing) for k, v in row.items()}
 
-    def _as_df(self, rows: Sequence[Mapping[str, Union[str, float, int, date, None]]]) -> DataFrame:
+    def _as_df(
+        self,
+        rows: Sequence[Mapping[str, Union[str, float, int, date, None]]],
+        disable_date_parsing: Optional[bool] = False,
+    ) -> DataFrame:
+        # TODO define data frame dtypes for each column
         df = DataFrame(rows)
         for info in self.meta:
-            if info.type in (EpidataFieldType.date, EpidataFieldType.epiweek) and info.name in df.columns:
+            if (
+                info.type in (EpidataFieldType.date, EpidataFieldType.epiweek)
+                and info.name in df.columns
+                and not disable_date_parsing
+            ):
                 df[info.name] = to_datetime(df[info.name])
             if info.type == EpidataFieldType.categorical and info.categories and info.name in df.columns:
                 df[info.name] = df[info.name].astype("category").cat.set_categories(info.categories, ordered=True)

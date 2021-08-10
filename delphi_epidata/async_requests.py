@@ -72,37 +72,43 @@ class EpiDataAsyncCall(AEpiDataCall):
         url, params = self.request_arguments(format_type, fields)
         return await _async_request(url, params, self._session)
 
-    async def classic(self, fields: Optional[Iterable[str]] = None) -> EpiDataResponse:
+    async def classic(
+        self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
+    ) -> EpiDataResponse:
         """Request and parse epidata in CLASSIC message format."""
         try:
             response = await self._call(None, fields)
             r = cast(EpiDataResponse, await response.json())
             epidata = r.get("epidata")
             if epidata and isinstance(epidata, list) and len(epidata) > 0 and isinstance(epidata[0], dict):
-                r["epidata"] = [self._parse_row(row) for row in epidata]
+                r["epidata"] = [self._parse_row(row, disable_date_parsing=disable_date_parsing) for row in epidata]
             return r
         except Exception as e:  # pylint: disable=broad-except
             return {"result": 0, "message": f"error: {e}", "epidata": []}
 
-    async def __call__(self, fields: Optional[Iterable[str]] = None) -> EpiDataResponse:
+    async def __call__(
+        self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
+    ) -> EpiDataResponse:
         """Request and parse epidata in CLASSIC message format."""
-        return await self.classic(fields)
+        return await self.classic(fields, disable_date_parsing=disable_date_parsing)
 
     async def json(
-        self, fields: Optional[Iterable[str]] = None
+        self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> List[Mapping[str, Union[str, int, float, date, None]]]:
         """Request and parse epidata in JSON format"""
         response = await self._call(EpiDataFormatType.json, fields)
         response.raise_for_status()
         return [
-            self._parse_row(row)
+            self._parse_row(row, disable_date_parsing)
             for row in cast(List[Mapping[str, Union[str, int, float, None]]], await response.json())
         ]
 
-    async def df(self, fields: Optional[Iterable[str]] = None) -> DataFrame:
+    async def df(
+        self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
+    ) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
-        r = await self.json(fields)
-        return self._as_df(r)
+        r = await self.json(fields, disable_date_parsing=disable_date_parsing)
+        return self._as_df(r, disable_date_parsing)
 
     async def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""
@@ -111,13 +117,13 @@ class EpiDataAsyncCall(AEpiDataCall):
         return await response.text()
 
     async def iter(
-        self, fields: Optional[Iterable[str]] = None
+        self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> AsyncGenerator[Mapping[str, Union[str, int, float, date, None]], None]:
         """Request and streams epidata rows"""
         response = await self._call(EpiDataFormatType.jsonl, fields)
         response.raise_for_status()
         async for line in response.content:
-            yield self._parse_row(loads(line))
+            yield self._parse_row(loads(line), disable_date_parsing=disable_date_parsing)
 
     async def __(self) -> AsyncGenerator[Mapping[str, Union[str, int, float, date, None]], None]:
         return self.iter()
