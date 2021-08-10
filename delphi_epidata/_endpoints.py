@@ -33,7 +33,9 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
     ) -> CALL_TYPE:
         raise NotImplementedError()
 
-    def afhsb(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam) -> CALL_TYPE:
+    def pvt_afhsb(
+        self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam
+    ) -> CALL_TYPE:
         """Fetch AFHSB data (point data, no min/max)."""
 
         if auth is None or locations is None or epiweeks is None or flu_types is None:
@@ -76,7 +78,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def cdc(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
+    def pvt_cdc(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
         """Fetch CDC page hits."""
 
         if auth is None or epiweeks is None or locations is None:
@@ -500,7 +502,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def dengue_sensors(
+    def pvt_dengue_sensors(
         self, auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam
     ) -> CALL_TYPE:
         """Fetch Delphi's digital surveillance sensors."""
@@ -665,7 +667,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def ght(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
+    def pvt_ght(self, auth: str, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
         """Fetch Google Health Trends data."""
         if auth is None or locations is None or epiweeks is None or query is None:
             raise InvalidArgumentException("`auth`, `locations`, `epiweeks`, and `query` are all required")
@@ -704,7 +706,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def meta_afhsb(self, auth: str) -> CALL_TYPE:
+    def pvt_meta_afhsb(self, auth: str) -> CALL_TYPE:
         """Fetch AFHSB metadata."""
 
         if auth is None:
@@ -715,7 +717,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             dict(auth=auth),
         )
 
-    def meta_norostat(self, auth: str) -> CALL_TYPE:
+    def pvt_meta_norostat(self, auth: str) -> CALL_TYPE:
         """Fetch NoroSTAT metadata."""
 
         if auth is None:
@@ -776,7 +778,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def norostat(self, auth: str, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
+    def pvt_norostat(self, auth: str, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch NoroSTAT data (point data, no min/max)."""
 
         if auth is None or location is None or epiweeks is None:
@@ -839,7 +841,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def quidel(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
+    def pvt_quidel(self, auth: str, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
         """Fetch Quidel data."""
 
         if auth is None or epiweeks is None or locations is None:
@@ -855,7 +857,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def sensors(self, auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
+    def pvt_sensors(self, auth: str, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch Delphi's digital surveillance sensors."""
 
         if auth is None or names is None or locations is None or epiweeks is None:
@@ -871,7 +873,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def twitter(
+    def pvt_twitter(
         self,
         auth: str,
         locations: StringParam,
