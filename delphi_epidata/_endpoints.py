@@ -30,10 +30,11 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> CALL_TYPE:
         raise NotImplementedError()
 
-    def afhsb(self, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam) -> CALL_TYPE:
+    def pvt_afhsb(self, locations: StringParam, epiweeks: EpiRangeParam, flu_types: StringParam) -> CALL_TYPE:
         """Fetch AFHSB data (point data, no min/max)."""
 
         if locations is None or epiweeks is None or flu_types is None:
@@ -76,7 +77,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def cdc(self, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
+    def pvt_cdc(self, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
         """Fetch CDC page hits."""
 
         if epiweeks is None or locations is None:
@@ -482,6 +483,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
                 EpidataFieldInfo("epiweek", EpidataFieldType.epiweek),
                 EpidataFieldInfo("json", EpidataFieldType.text),
             ],
+            only_supports_classic=True,
         )
 
     def dengue_nowcast(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -500,7 +502,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def dengue_sensors(self, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
+    def pvt_dengue_sensors(self, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch Delphi's digital surveillance sensors."""
 
         if names is None or locations is None or epiweeks is None:
@@ -662,7 +664,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def ght(self, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
+    def pvt_ght(self, locations: StringParam, epiweeks: EpiRangeParam, query: str) -> CALL_TYPE:
         """Fetch Google Health Trends data."""
         if locations is None or epiweeks is None or query is None:
             raise InvalidArgumentException("`locations`, `epiweeks`, and `query` are all required")
@@ -701,26 +703,25 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def meta_afhsb(self) -> CALL_TYPE:
+    def pvt_meta_afhsb(self) -> CALL_TYPE:
         """Fetch AFHSB metadata."""
         return self._create_call(
             "meta_afhsb/",
-            dict(),
+            {},
+            only_supports_classic=True,
         )
 
-    def meta_norostat(self) -> CALL_TYPE:
+    def pvt_meta_norostat(self) -> CALL_TYPE:
         """Fetch NoroSTAT metadata."""
 
-        return self._create_call(
-            "meta_norostat/",
-            dict(),
-        )
+        return self._create_call("meta_norostat/", {}, only_supports_classic=True)
 
     def meta(self) -> CALL_TYPE:
         """Fetch API metadata."""
         return self._create_call(
             "meta/",
             {},
+            only_supports_classic=True,
         )
 
     def nidss_dengue(self, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
@@ -767,7 +768,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def norostat(self, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
+    def pvt_norostat(self, location: str, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch NoroSTAT data (point data, no min/max)."""
 
         if location is None or epiweeks is None:
@@ -830,7 +831,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def quidel(self, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
+    def pvt_quidel(self, epiweeks: EpiRangeParam, locations: StringParam) -> CALL_TYPE:
         """Fetch Quidel data."""
 
         if epiweeks is None or locations is None:
@@ -846,7 +847,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def sensors(self, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
+    def pvt_sensors(self, names: StringParam, locations: StringParam, epiweeks: EpiRangeParam) -> CALL_TYPE:
         """Fetch Delphi's digital surveillance sensors."""
 
         if names is None or locations is None or epiweeks is None:
@@ -862,7 +863,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
             ],
         )
 
-    def twitter(
+    def pvt_twitter(
         self,
         locations: StringParam,
         dates: Optional[EpiRangeParam] = None,

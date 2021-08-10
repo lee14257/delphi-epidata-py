@@ -2,11 +2,25 @@ from dataclasses import dataclass, field
 from enum import Enum
 from datetime import date
 from urllib.parse import urlencode
-from typing import Final, Generic, Iterable, List, Mapping, Optional, Sequence, Tuple, TypeVar, TypedDict, Union
+from typing import (
+    Any,
+    Dict,
+    Final,
+    Generic,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    TypedDict,
+    Union,
+)
 
-from pandas import DataFrame, to_datetime
+from pandas import DataFrame, CategoricalDtype
 
-from ._parse import parse_api_date, parse_api_week
+from ._parse import parse_api_date, parse_api_week, fields_to_predicate
 
 EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
 EpiRangeLike = Union[int, str, "EpiRange", EpiRangeDict, date]
@@ -88,6 +102,12 @@ class InvalidArgumentException(Exception):
     """
 
 
+class OnlySupportsClassicFormatException(Exception):
+    """
+    the endpoint only supports the classic message format, due to an non-standard behavior
+    """
+
+
 class EpidataFieldType(Enum):
     """
     field type
@@ -125,6 +145,7 @@ class AEpiDataCall:
     _params: Final[Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]]]
     meta: Final[Sequence[EpidataFieldInfo]]
     meta_by_name: Final[Mapping[str, EpidataFieldInfo]]
+    only_supports_classic: Final[bool]
 
     def __init__(
         self,
@@ -133,11 +154,13 @@ class AEpiDataCall:
         endpoint: str,
         params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]],
         meta: Optional[Sequence[EpidataFieldInfo]] = None,
+        only_supports_classic: bool = False,
     ) -> None:
         self._base_url = base_url
         self._api_key = api_key
         self._endpoint = endpoint
         self._params = params
+        self.only_supports_classic = only_supports_classic
         self.meta = meta or []
         self.meta_by_name = {k.name: k for k in self.meta}
 
@@ -195,30 +218,53 @@ class AEpiDataCall:
     def __str__(self) -> str:
         return self.request_url()
 
-    def _parse_value(self, key: str, value: Union[str, float, int, None]) -> Union[str, float, int, date, None]:
+    def _parse_value(
+        self, key: str, value: Union[str, float, int, None], disable_date_parsing: Optional[bool] = False
+    ) -> Union[str, float, int, date, None]:
         meta = self.meta_by_name.get(key)
         if not meta or value is None:
             return value
-        if meta.type == EpidataFieldType.date:
+        if meta.type == EpidataFieldType.date and not disable_date_parsing:
             return parse_api_date(value)
-        if meta.type == EpidataFieldType.epiweek:
+        if meta.type == EpidataFieldType.epiweek and not disable_date_parsing:
             return parse_api_week(value)
         if meta.type == EpidataFieldType.bool:
             return bool(value)
         return value
 
     def _parse_row(
-        self, row: Mapping[str, Union[str, float, int, None]]
+        self, row: Mapping[str, Union[str, float, int, None]], disable_date_parsing: Optional[bool] = False
     ) -> Mapping[str, Union[str, float, int, date, None]]:
         if not self.meta:
             return row
-        return {k: self._parse_value(k, v) for k, v in row.items()}
+        return {k: self._parse_value(k, v, disable_date_parsing) for k, v in row.items()}
 
-    def _as_df(self, rows: Sequence[Mapping[str, Union[str, float, int, date, None]]]) -> DataFrame:
-        df = DataFrame(rows)
+    def _as_df(
+        self,
+        rows: Sequence[Mapping[str, Union[str, float, int, date, None]]],
+        fields: Optional[Iterable[str]] = None,
+        disable_date_parsing: Optional[bool] = False,
+    ) -> DataFrame:
+        pred = fields_to_predicate(fields)
+        columns: List[str] = [info.name for info in self.meta if pred(info.name)]
+        df = DataFrame(rows, columns=columns or None)
+
+        data_types: Dict[str, Any] = {}
         for info in self.meta:
-            if info.type in (EpidataFieldType.date, EpidataFieldType.epiweek) and info.name in df.columns:
-                df[info.name] = to_datetime(df[info.name])
-            if info.type == EpidataFieldType.categorical and info.categories and info.name in df.columns:
-                df[info.name] = df[info.name].astype("category").cat.set_categories(info.categories, ordered=True)
+            if not pred(info.name):
+                continue
+            if info.type == EpidataFieldType.bool:
+                data_types[info.name] = bool
+            elif info.type == EpidataFieldType.categorical:
+                data_types[info.name] = CategoricalDtype(categories=info.categories or None, ordered=True)
+            elif info.type == EpidataFieldType.int:
+                data_types[info.name] = int
+            elif info.type in (EpidataFieldType.date, EpidataFieldType.epiweek):
+                data_types[info.name] = int if disable_date_parsing else "datetime64"
+            elif info.type == EpidataFieldType.float:
+                data_types[info.name] = float
+            else:
+                data_types[info.name] = str
+        if data_types:
+            df = df.astype(data_types)
         return df
