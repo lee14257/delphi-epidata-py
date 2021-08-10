@@ -2,11 +2,25 @@ from dataclasses import dataclass, field
 from enum import Enum
 from datetime import date
 from urllib.parse import urlencode
-from typing import Final, Generic, Iterable, List, Mapping, Optional, Sequence, Tuple, TypeVar, TypedDict, Union
+from typing import (
+    Any,
+    Dict,
+    Final,
+    Generic,
+    Iterable,
+    List,
+    Mapping,
+    Optional,
+    Sequence,
+    Tuple,
+    TypeVar,
+    TypedDict,
+    Union,
+)
 
-from pandas import DataFrame, to_datetime
+from pandas import DataFrame, CategoricalDtype
 
-from ._parse import parse_api_date, parse_api_week
+from ._parse import parse_api_date, parse_api_week, fields_to_predicate
 
 EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
 EpiRangeLike = Union[int, str, "EpiRange", EpiRangeDict, date]
@@ -224,17 +238,29 @@ class AEpiDataCall:
     def _as_df(
         self,
         rows: Sequence[Mapping[str, Union[str, float, int, date, None]]],
+        fields: Optional[Iterable[str]] = None,
         disable_date_parsing: Optional[bool] = False,
     ) -> DataFrame:
-        # TODO define data frame dtypes for each column
-        df = DataFrame(rows)
+        pred = fields_to_predicate(fields)
+        columns: List[str] = [info.name for info in self.meta if pred(info.name)]
+        df = DataFrame(rows, columns=columns or None)
+
+        data_types: Dict[str, Any] = {}
         for info in self.meta:
-            if (
-                info.type in (EpidataFieldType.date, EpidataFieldType.epiweek)
-                and info.name in df.columns
-                and not disable_date_parsing
-            ):
-                df[info.name] = to_datetime(df[info.name])
-            if info.type == EpidataFieldType.categorical and info.categories and info.name in df.columns:
-                df[info.name] = df[info.name].astype("category").cat.set_categories(info.categories, ordered=True)
+            if not pred(info.name):
+                continue
+            if info.type == EpidataFieldType.bool:
+                data_types[info.name] = bool
+            elif info.type == EpidataFieldType.categorical:
+                data_types[info.name] = CategoricalDtype(categories=info.categories or None, ordered=True)
+            elif info.type == EpidataFieldType.int:
+                data_types[info.name] = int
+            elif info.type in (EpidataFieldType.date, EpidataFieldType.epiweek):
+                data_types[info.name] = int if disable_date_parsing else "datetime64"
+            elif info.type == EpidataFieldType.float:
+                data_types[info.name] = float
+            else:
+                data_types[info.name] = str
+        if data_types:
+            df = df.astype(data_types)
         return df

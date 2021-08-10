@@ -109,8 +109,8 @@ class EpiDataCall(AEpiDataCall):
         """Request and parse epidata as a pandas data frame"""
         if self.only_supports_classic:
             raise OnlySupportsClassicFormatException()
-        r = self.json(fields)
-        return self._as_df(r, disable_date_parsing=disable_date_parsing)
+        r = self.json(fields, disable_date_parsing=disable_date_parsing)
+        return self._as_df(r, fields, disable_date_parsing=disable_date_parsing)
 
     def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""

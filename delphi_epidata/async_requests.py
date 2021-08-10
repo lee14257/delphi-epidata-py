@@ -121,7 +121,7 @@ class EpiDataAsyncCall(AEpiDataCall):
         if self.only_supports_classic:
             raise OnlySupportsClassicFormatException()
         r = await self.json(fields, disable_date_parsing=disable_date_parsing)
-        return self._as_df(r, disable_date_parsing)
+        return self._as_df(r, fields, disable_date_parsing)
 
     async def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""

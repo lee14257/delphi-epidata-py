@@ -17,6 +17,11 @@ print(data[0])
 df = apicall.df()
 print(df.columns)
 print(df.dtypes)
+print(df.iloc[0])
+df = apicall.df(disable_date_parsing=True)
+print(df.columns)
+print(df.dtypes)
+print(df.iloc[0])
 
 for row in apicall.iter():
     print(row)
