@@ -10,7 +10,6 @@ from typing import (
     Iterable,
     List,
     Mapping,
-    Mapping,
     Optional,
     Sequence,
     Tuple,
@@ -40,7 +39,7 @@ def format_date(d: EpiDateLike) -> str:
 
 def format_item(value: EpiRangeLike) -> str:
     """Cast values and/or range to a string."""
-    if isinstance(value, date) or isinstance(value, Week):
+    if isinstance(value, (date, Week)):
         return format_date(value)
     if isinstance(value, Enum):
         return str(value.value)
