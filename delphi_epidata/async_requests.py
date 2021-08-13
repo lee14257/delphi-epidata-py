@@ -8,6 +8,7 @@ from typing import (
     Iterable,
     List,
     Mapping,
+    Mapping,
     Optional,
     Sequence,
     Union,
@@ -27,9 +28,11 @@ from ._model import (
     EpiRange,
     EpidataFieldInfo,
     OnlySupportsClassicFormatException,
+    add_endpoint_to_url,
 )
 from ._endpoints import AEpiDataEndpoints
 from ._constants import HTTP_HEADERS, BASE_URL
+from ._covidcast import CovidcastDataSources, define_covidcast_fields
 
 
 async def _async_request(
@@ -85,6 +88,7 @@ class EpiDataAsyncCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> EpiDataResponse:
         """Request and parse epidata in CLASSIC message format."""
+        self._verify_parameters()
         try:
             response = await self._call(None, fields)
             r = cast(EpiDataResponse, await response.json())
@@ -105,6 +109,7 @@ class EpiDataAsyncCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> List[Mapping[str, Union[str, int, float, date, None]]]:
         """Request and parse epidata in JSON format"""
+        self._verify_parameters()
         if self.only_supports_classic:
             raise OnlySupportsClassicFormatException()
         response = await self._call(EpiDataFormatType.json, fields)
@@ -118,6 +123,7 @@ class EpiDataAsyncCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> DataFrame:
         """Request and parse epidata as a pandas data frame"""
+        self._verify_parameters()
         if self.only_supports_classic:
             raise OnlySupportsClassicFormatException()
         r = await self.json(fields, disable_date_parsing=disable_date_parsing)
@@ -125,6 +131,7 @@ class EpiDataAsyncCall(AEpiDataCall):
 
     async def csv(self, fields: Optional[Iterable[str]] = None) -> str:
         """Request and parse epidata in CSV format"""
+        self._verify_parameters()
         if self.only_supports_classic:
             raise OnlySupportsClassicFormatException()
         response = await self._call(EpiDataFormatType.csv, fields)
@@ -135,6 +142,7 @@ class EpiDataAsyncCall(AEpiDataCall):
         self, fields: Optional[Iterable[str]] = None, disable_date_parsing: Optional[bool] = False
     ) -> AsyncGenerator[Mapping[str, Union[str, int, float, date, None]], None]:
         """Request and streams epidata rows"""
+        self._verify_parameters()
         if self.only_supports_classic:
             raise OnlySupportsClassicFormatException()
         response = await self._call(EpiDataFormatType.jsonl, fields)
@@ -243,4 +251,18 @@ class EpiDataAsyncContext(AEpiDataEndpoints[EpiDataAsyncCall]):
 Epidata = EpiDataAsyncContext()
 
 
-__all__ = ["Epidata", "EpiDataAsyncCall", "EpiDataAsyncContext", "EpiRange"]
+async def CovidcastEpidata(
+    base_url: str = BASE_URL, session: Optional[ClientSession] = None
+) -> CovidcastDataSources[EpiDataAsyncCall]:
+    url = add_endpoint_to_url(base_url, "covidcast/meta")
+    meta_data_res = await _async_request(url, {}, session)
+    meta_data_res.raise_for_status()
+    meta_data = await meta_data_res.json()
+
+    def create_call(params: Mapping[str, Union[None, EpiRangeLike, Iterable[EpiRangeLike]]]) -> EpiDataAsyncCall:
+        return EpiDataAsyncCall(base_url, session, "covidcast", params, define_covidcast_fields())
+
+    return CovidcastDataSources.create(meta_data, create_call)
+
+
+__all__ = ["Epidata", "EpiDataAsyncCall", "EpiDataAsyncContext", "EpiRange", "CovidcastEpidata"]
