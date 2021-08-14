@@ -2,6 +2,7 @@ from dataclasses import Field, InitVar, dataclass, field, fields
 from typing import (
     Any,
     Callable,
+    ClassVar,
     Dict,
     Generic,
     Iterable,
@@ -15,6 +16,8 @@ from typing import (
     Union,
     overload,
 )
+from functools import cached_property
+from pandas import DataFrame
 from ._model import (
     EpiRangeLike,
     CALL_TYPE,
@@ -119,6 +122,33 @@ class DataSignal(Generic[CALL_TYPE]):
             for k, l in self.geo_types.items()
         }
 
+    @staticmethod
+    def to_df(signals: Iterable["DataSignal"]) -> DataFrame:
+        df = DataFrame(
+            signals,
+            columns=[
+                "source",
+                "signal",
+                "name",
+                "active",
+                "short_description",
+                "description",
+                "time_type",
+                "time_label",
+                "value_label",
+                "format",
+                "category",
+                "high_values_are",
+                "is_smoothed",
+                "is_weighted",
+                "is_cumulative",
+                "has_stderr",
+                "has_sample_size",
+            ],
+        )
+        df.insert(6, "geo_types", [",".join(s.geo_types.keys()) for s in signals])
+        return df.set_index(["source", "signal"])
+
     @property
     def key(self) -> Tuple[str, str]:
         return (self.source, self.signal)
@@ -194,8 +224,21 @@ class DataSource(Generic[CALL_TYPE]):
             for s in self.signals
         ]
 
+    @staticmethod
+    def to_df(sources: Iterable["DataSource"]) -> DataFrame:
+        df = DataFrame(
+            sources,
+            columns=["source", "name", "description", "reference_signal", "license", "dua"],
+        )
+        df["signals"] = [",".join(ss.signal for ss in s.signals) for s in sources]
+        return df.set_index("source")
+
     def get_signal(self, signal: str) -> Optional[DataSignal]:
         return next((s for s in self.signals if s.signal == signal), None)
+
+    @cached_property
+    def signal_df(self) -> DataFrame:
+        return DataSignal.to_df(self.signals)
 
 
 @dataclass
@@ -225,9 +268,17 @@ class CovidcastDataSources(Generic[CALL_TYPE]):
     def source_names(self) -> Iterable[str]:
         return (s.source for s in self.sources)
 
+    @cached_property
+    def source_df(self) -> DataFrame:
+        return DataSource.to_df(self.sources)
+
     @property
     def signals(self) -> Iterable[DataSignal[CALL_TYPE]]:
         return self._signals_by_key.values()
+
+    @cached_property
+    def signal_df(self) -> DataFrame:
+        return DataSignal.to_df(self.signals)
 
     def get_signal(self, source: str, signal: str) -> Optional[DataSignal[CALL_TYPE]]:
         return self._signals_by_key.get((source, signal))
