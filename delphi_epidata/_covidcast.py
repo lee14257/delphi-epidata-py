@@ -2,7 +2,6 @@ from dataclasses import Field, InitVar, dataclass, field, fields
 from typing import (
     Any,
     Callable,
-    ClassVar,
     Dict,
     Generic,
     Iterable,
