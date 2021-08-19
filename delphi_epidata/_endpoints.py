@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Iterable, Mapping, Optional, TypeVar, Union, Sequence
+from typing import Generic, Iterable, Mapping, Optional, Union, Sequence
 from ._model import (
     EpiRangeLike,
     EpiRangeParam,
@@ -10,9 +10,9 @@ from ._model import (
     EPI_RANGE_TYPE,
     EpidataFieldInfo,
     EpidataFieldType,
+    CALL_TYPE,
 )
-
-CALL_TYPE = TypeVar("CALL_TYPE")
+from ._covidcast import define_covidcast_fields, GeoType, TimeType
 
 
 class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
@@ -420,8 +420,8 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         self,
         data_source: str,
         signals: StringParam,
-        time_type: str,
-        geo_type: str,
+        time_type: TimeType,
+        geo_type: GeoType,
         time_values: EpiRangeParam,
         geo_values: Union[int, str, Iterable[Union[int, str]]],
         as_of: Union[None, str, int] = None,
@@ -449,27 +449,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
                 lag=lag,
                 geo_values=geo_values,
             ),
-            [
-                EpidataFieldInfo("source", EpidataFieldType.text),
-                EpidataFieldInfo("signal", EpidataFieldType.text),
-                EpidataFieldInfo(
-                    "geo_type",
-                    EpidataFieldType.categorical,
-                    categories=["nation", "msa", "hrr", "hhs", "state", "county"],
-                ),
-                EpidataFieldInfo("geo_value", EpidataFieldType.text),
-                EpidataFieldInfo("time_type", EpidataFieldType.categorical, categories=["day", "week"]),
-                EpidataFieldInfo("time_value", EpidataFieldType.date),
-                EpidataFieldInfo("issue", EpidataFieldType.date),
-                EpidataFieldInfo("lag", EpidataFieldType.int),
-                EpidataFieldInfo("value", EpidataFieldType.float),
-                EpidataFieldInfo("stderr", EpidataFieldType.float),
-                EpidataFieldInfo("sample_size", EpidataFieldType.int),
-                EpidataFieldInfo("direction", EpidataFieldType.float),
-                EpidataFieldInfo("missing_value", EpidataFieldType.int),
-                EpidataFieldInfo("missing_stderr", EpidataFieldType.int),
-                EpidataFieldInfo("missing_sample_size", EpidataFieldType.int),
-            ],
+            define_covidcast_fields(),
         )
 
     def delphi(self, system: str, epiweek: Union[int, str]) -> CALL_TYPE:

@@ -16,33 +16,37 @@ from typing import (
     TypeVar,
     TypedDict,
     Union,
+    cast,
 )
-
+from epiweeks import Week
 from pandas import DataFrame, CategoricalDtype
 
 from ._parse import parse_api_date, parse_api_week, fields_to_predicate
 
-EpiRangeDict = TypedDict("EpiRangeDict", {"from": int, "to": int})
-EpiRangeLike = Union[int, str, "EpiRange", EpiRangeDict, date]
+EpiDateLike = Union[int, str, date, Week]
+EpiRangeDict = TypedDict("EpiRangeDict", {"from": EpiDateLike, "to": EpiDateLike})
+EpiRangeLike = Union[int, str, "EpiRange", EpiRangeDict, date, Week]
 
 
-def format_date(d: Union[int, str, date]) -> str:
+def format_date(d: EpiDateLike) -> str:
     if isinstance(d, date):
         # YYYYMMDD
         return d.strftime("%Y%m%d")
+    if isinstance(d, Week):
+        return cast(str, d.cdcformat())
     return str(d)
 
 
 def format_item(value: EpiRangeLike) -> str:
     """Cast values and/or range to a string."""
-    if isinstance(value, date):
+    if isinstance(value, (date, Week)):
         return format_date(value)
     if isinstance(value, Enum):
         return str(value.value)
     if isinstance(value, EpiRange):
         return str(value)
     if isinstance(value, dict) and "from" in value and "to" in value:
-        return f"{format_item(value['from'])}-{format_item(value['to'])}"
+        return f"{format_date(value['from'])}-{format_date(value['to'])}"
     return str(value)
 
 
@@ -52,7 +56,7 @@ def format_list(values: Union[EpiRangeLike, Iterable[EpiRangeLike]]) -> str:
     return ",".join([format_item(value) for value in list_values])
 
 
-EPI_RANGE_TYPE = TypeVar("EPI_RANGE_TYPE", int, date, str)
+EPI_RANGE_TYPE = TypeVar("EPI_RANGE_TYPE", int, date, str, Week)
 
 
 @dataclass(repr=False)
@@ -134,6 +138,16 @@ class EpidataFieldInfo:
     categories: Final[Sequence[str]] = field(default_factory=list)
 
 
+CALL_TYPE = TypeVar("CALL_TYPE")
+
+
+def add_endpoint_to_url(url: str, endpoint: str) -> str:
+    if not url.endswith("/"):
+        url += "/"
+    url += endpoint
+    return url
+
+
 class AEpiDataCall:
     """
     base epidata call class
@@ -160,6 +174,10 @@ class AEpiDataCall:
         self.only_supports_classic = only_supports_classic
         self.meta = meta or []
         self.meta_by_name = {k.name: k for k in self.meta}
+
+    def _verify_parameters(self) -> None:
+        # hook for verifying parameters before sending
+        pass
 
     def _formatted_paramters(
         self, format_type: Optional[EpiDataFormatType] = None, fields: Optional[Iterable[str]] = None
@@ -188,11 +206,7 @@ class AEpiDataCall:
         """
         combines the endpoint with the given base url
         """
-        url = self._base_url
-        if not url.endswith("/"):
-            url += "/"
-        url += self._endpoint
-        return url
+        return add_endpoint_to_url(self._base_url, self._endpoint)
 
     def request_url(
         self,
@@ -202,6 +216,7 @@ class AEpiDataCall:
         """
         format this call into a full HTTP request url with encoded parameters
         """
+        self._verify_parameters()
         u, p = self.request_arguments(format_type, fields)
         query = urlencode(p)
         if query:
