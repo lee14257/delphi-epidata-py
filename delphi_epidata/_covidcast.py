@@ -14,6 +14,7 @@ from typing import (
     Tuple,
     Union,
     overload,
+    get_args,
 )
 from functools import cached_property
 from pandas import DataFrame
@@ -65,10 +66,10 @@ def define_covidcast_fields() -> List[EpidataFieldInfo]:
         EpidataFieldInfo(
             "geo_type",
             EpidataFieldType.categorical,
-            categories=["nation", "msa", "hrr", "hhs", "state", "county"],
+            categories=list(get_args(GeoType)),
         ),
         EpidataFieldInfo("geo_value", EpidataFieldType.text),
-        EpidataFieldInfo("time_type", EpidataFieldType.categorical, categories=["day", "week"]),
+        EpidataFieldInfo("time_type", EpidataFieldType.categorical, categories=list(get_args(TimeType))),
         EpidataFieldInfo("time_value", EpidataFieldType.date),
         EpidataFieldInfo("issue", EpidataFieldType.date),
         EpidataFieldInfo("lag", EpidataFieldType.int),
