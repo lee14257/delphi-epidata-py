@@ -13,5 +13,14 @@ from ._model import (
     EpiDataFormatType,
     AEpiDataCall,
 )
+from ._covidcast import (
+    DataSignal,
+    DataSource,
+    WebLink,
+    DataSignalGeoStatistics,
+    CovidcastDataSources,
+    GeoType,
+    TimeType,
+)
 
 __author__ = "Delphi Group"
