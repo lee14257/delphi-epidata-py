@@ -1,5 +1,5 @@
 from asyncio import get_event_loop
-from delphi_epidata.async_requests import Epidata
+from delphi_epidata.async_request import Epidata
 
 
 async def main() -> None:

@@ -1,5 +1,5 @@
 from datetime import date
-from delphi_epidata.requests import Epidata, EpiRange
+from delphi_epidata.request import Epidata, EpiRange
 
 apicall = Epidata.covidcast("fb-survey", "smoothed_cli", "day", "nation", EpiRange(20210405, 20210410), "us")
 

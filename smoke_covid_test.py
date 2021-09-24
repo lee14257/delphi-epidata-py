@@ -1,4 +1,4 @@
-from delphi_epidata.requests import CovidcastEpidata, EpiRange
+from delphi_epidata.request import CovidcastEpidata, EpiRange
 
 epidata = CovidcastEpidata()
 print(list(epidata.source_names))
