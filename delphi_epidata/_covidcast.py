@@ -339,8 +339,8 @@ class CovidcastDataSources(Generic[CALL_TYPE]):
 
           ``geo_types``
             Spatial resolution of the signal (e.g., `county`, `hrr`, `msa`, `dma`, `state`).
-            More detail about all `geo_types` is given in the
-            `geographic coding documentation <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_geography.html>`_.
+            More detail about all `geo_types` is given in the `geographic coding documentation
+            <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_geography.html>`_.
 
           ``time_type``
             Temporal resolution of the signal (e.g., day, week; see
