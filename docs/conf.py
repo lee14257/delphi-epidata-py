@@ -44,6 +44,9 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
+add_module_names = False
+autoclass_content = 'class'
+autodoc_typehints = 'description'
 
 # -- Options for HTML output -------------------------------------------------
 

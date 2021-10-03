@@ -48,3 +48,5 @@ Contents
 
    getting_started
 
+   signals_covid
+

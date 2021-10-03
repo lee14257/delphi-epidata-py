@@ -244,7 +244,7 @@ class DataSource(Generic[CALL_TYPE]):
 @dataclass
 class CovidcastDataSources(Generic[CALL_TYPE]):
     """
-    COVIDcast data source helper
+    COVIDcast data source helper.
     """
 
     sources: Sequence[DataSource[CALL_TYPE]]
@@ -270,6 +270,35 @@ class CovidcastDataSources(Generic[CALL_TYPE]):
 
     @cached_property
     def source_df(self) -> DataFrame:
+        """Fetch metadata about available covidcast sources.
+
+        Obtains a data frame of source metadata describing all publicly available data
+        streams from the covidcast API.
+
+        :returns: A data frame containing one row per available source, with the
+          following columns:
+
+          ``source``
+            Data source name.
+
+          ``signal``
+            Signal name.
+
+          ``description``
+            Description of the signal.
+
+          ``reference_signal``
+            Geographic level for which this signal is available, such as county,
+            state, msa, hss, hrr, or nation. Most signals are available at multiple geographic
+            levels and will hence be listed in multiple rows with their own
+            metadata.
+
+          ``license``
+            The license
+
+          ``dua``
+            Link to the Data Use Agreement.
+        """
         return DataSource.to_df(self.sources)
 
     @property
@@ -278,6 +307,73 @@ class CovidcastDataSources(Generic[CALL_TYPE]):
 
     @cached_property
     def signal_df(self) -> DataFrame:
+        """Fetch metadata about available covidcast signals.
+
+        Obtains a data frame of metadata describing all publicly available data
+        streams from the COVIDcast API. See the `data source and signals documentation
+        <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_signals.html>`_
+        for descriptions of the available sources.
+
+        :returns: A data frame containing one row per available signal, with the
+          following columns:
+
+          ``data_source``
+            Data source name.
+
+          ``signal``
+            Signal name.
+
+          ``name``
+            Name of signal.
+
+          ``active``
+            Whether the signal is currently not updated or not. Signals may be inactive
+            because the sources have become unavailable, other sources have replaced
+            them, or additional work is required for us to continue updating them.
+
+          ``short_description``
+            Brief description of the signal.
+
+          ``description``
+            Full description of the signal.
+
+          ``geo_types``
+            Spatial resolution of the signal (e.g., `county`, `hrr`, `msa`, `dma`, `state`). More detail about all `geo_types` is given
+            in the `geographic coding documentation <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_geography.html>`_.
+
+          ``time_type``
+            Temporal resolution of the signal (e.g., day, week; see `date coding details <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_times.html>`_).
+
+          ``time_label``
+            The time label ("Date", "Week").
+
+          ``value_label``
+            The value label ("Value", "Percentage", "Visits", "Visits per 100,000 people").
+
+          ``format``
+            The value format ("per100k", "percent", "fraction", "count", "raw").
+
+          ``category``
+            The signal category ("early", "public", "late", "other").
+
+          ``high_values_are``
+            What the higher value of signal indicates ("good", "bad", "neutral").
+
+          ``is_smoothed``
+            Whether the signal is smoothed.
+
+          ``is_weighted``
+            Whether the signal is weighted.
+
+          ``is_cumulative``
+            Whether the signal is cumulative.
+
+          ``has_stderr``
+            Whether the signal has `stderr` statistic.
+
+          ``has_sample_size``
+            Whether the signal has `sample_size` statistic.
+        """
         return DataSignal.to_df(self.signals)
 
     def get_signal(self, source: str, signal: str) -> Optional[DataSignal[CALL_TYPE]]:
