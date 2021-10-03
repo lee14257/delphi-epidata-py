@@ -338,11 +338,13 @@ class CovidcastDataSources(Generic[CALL_TYPE]):
             Full description of the signal.
 
           ``geo_types``
-            Spatial resolution of the signal (e.g., `county`, `hrr`, `msa`, `dma`, `state`). More detail about all `geo_types` is given
-            in the `geographic coding documentation <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_geography.html>`_.
+            Spatial resolution of the signal (e.g., `county`, `hrr`, `msa`, `dma`, `state`). 
+            More detail about all `geo_types` is given in the `geographic coding documentation 
+            <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_geography.html>`_.
 
           ``time_type``
-            Temporal resolution of the signal (e.g., day, week; see `date coding details <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_times.html>`_).
+            Temporal resolution of the signal (e.g., day, week; see `date coding details 
+            <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_times.html>`_).
 
           ``time_label``
             The time label ("Date", "Week").
