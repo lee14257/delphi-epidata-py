@@ -262,7 +262,7 @@ class AEpiDataCall:
 
         data_types: Dict[str, Any] = {}
         for info in self.meta:
-            if not pred(info.name):
+            if not pred(info.name) or df[info.name].isnull().values.all():
                 continue
             if info.type == EpidataFieldType.bool:
                 data_types[info.name] = bool
