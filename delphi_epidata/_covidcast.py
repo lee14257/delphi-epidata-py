@@ -69,16 +69,8 @@ def define_covidcast_fields() -> List[EpidataFieldInfo]:
             categories=list(get_args(GeoType)),
         ),
         EpidataFieldInfo("geo_value", EpidataFieldType.text),
-        EpidataFieldInfo(
-            "time_type", 
-            EpidataFieldType.categorical, 
-            categories=list(get_args(TimeType))
-        ),
-        EpidataFieldInfo(
-            "time_value", 
-            EpidataFieldType.date_or_epiweek,
-            description="time_type"
-        ),
+        EpidataFieldInfo("time_type", EpidataFieldType.categorical, categories=list(get_args(TimeType))),
+        EpidataFieldInfo("time_value", EpidataFieldType.date),
         EpidataFieldInfo("issue", EpidataFieldType.date),
         EpidataFieldInfo("lag", EpidataFieldType.int),
         EpidataFieldInfo("value", EpidataFieldType.float),
