@@ -347,7 +347,69 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         )
 
     def covidcast_meta(self) -> CALL_TYPE:
-        """Fetch Delphi's COVID-19 Surveillance Streams metadata"""
+        """Fetch COVIDcast surveillance stream metadata.
+
+        Obtains a data frame of metadata describing all publicly available data
+        streams from the COVIDcast API. See the `data source and signals
+        documentation
+        <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_signals.html>`_
+        for descriptions of the available sources.
+
+        :returns: A `EpiDataCall` object containing the following information:
+
+            ``data_source``
+                Data source name.
+
+            ``signal``
+                Signal name.
+
+            ``time_type``
+                Temporal resolution at which this signal is reported. "day", for
+                example, means the signal is reported daily.
+
+            ``geo_type``
+                Geographic level for which this signal is available, such as county,
+                state, msa, hss, hrr, or nation. Most signals are available at multiple geographic
+                levels and will hence be listed in multiple rows with their own
+                metadata.
+
+            ``min_time``
+                First day for which this signal is available. For weekly signals, will be
+                the first day of the epiweek.
+
+            ``max_time``
+                Most recent day for which this signal is available. For weekly signals, will be
+                the first day of the epiweek.
+
+            ``num_locations``
+                Number of distinct geographic locations available for this signal. For
+                example, if `geo_type` is county, the number of counties for which this
+                signal has ever been reported.
+
+            ``min_value``
+                The smallest value that has ever been reported.
+
+            ``max_value``
+                The largest value that has ever been reported.
+
+            ``mean_value``
+                The arithmetic mean of all reported values.
+
+            ``stdev_value``
+                The sample standard deviation of all reported values.
+
+            ``last_update``
+                The UTC datetime for when the signal value was last updated.
+
+            ``max_issue``
+                Most recent date data was issued.
+
+            ``min_lag``
+                Smallest lag from observation to issue, in days.
+
+            ``max_lag``
+                Largest lag from observation to issue, in days.
+        """
         return self._create_call(
             "covidcast_meta/",
             {},
