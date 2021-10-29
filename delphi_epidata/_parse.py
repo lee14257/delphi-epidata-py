@@ -23,9 +23,10 @@ def parse_api_date_or_week(value: Union[str, int, float, None]) -> Optional[date
         return None
     v = str(value)
     if len(v) == 6:
-        return cast(date, Week.fromstring(v).startdate())
-    if len(v) == 8:
-        return datetime.strptime(v, "%Y%m%d").date()
+        d = cast(date, Week.fromstring(v).startdate())
+    else:
+        d = datetime.strptime(v, "%Y%m%d").date()
+    return d
 
 
 def fields_to_predicate(fields: Optional[Iterable[str]] = None) -> Callable[[str], bool]:
