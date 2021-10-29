@@ -124,6 +124,7 @@ class EpidataFieldType(Enum):
     epiweek = 4
     categorical = 5
     bool = 6
+    date_or_epiweek = 7
 
 
 @dataclass
@@ -235,6 +236,11 @@ class AEpiDataCall:
         meta = self.meta_by_name.get(key)
         if not meta or value is None:
             return value
+        if meta.type == EpidataFieldType.date_or_epiweek and not disable_date_parsing:
+            if self.meta_by_name.get(meta.description).type==EpidataFieldType.date:
+                return parse_api_date(value)
+            else:
+                return parse_api_week(value)
         if meta.type == EpidataFieldType.date and not disable_date_parsing:
             return parse_api_date(value)
         if meta.type == EpidataFieldType.epiweek and not disable_date_parsing:
@@ -270,7 +276,7 @@ class AEpiDataCall:
                 data_types[info.name] = CategoricalDtype(categories=info.categories or None, ordered=True)
             elif info.type == EpidataFieldType.int:
                 data_types[info.name] = int
-            elif info.type in (EpidataFieldType.date, EpidataFieldType.epiweek):
+            elif info.type in (EpidataFieldType.date, EpidataFieldType.epiweek, EpidataFieldType.date_or_epiweek):
                 data_types[info.name] = int if disable_date_parsing else "datetime64"
             elif info.type == EpidataFieldType.float:
                 data_types[info.name] = float

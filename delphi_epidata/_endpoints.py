@@ -355,8 +355,16 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
                 EpidataFieldInfo("data_source", EpidataFieldType.text),
                 EpidataFieldInfo("signal", EpidataFieldType.text),
                 EpidataFieldInfo("time_type", EpidataFieldType.categorical, categories=["week", "day"]),
-                EpidataFieldInfo("min_time", EpidataFieldType.date),
-                EpidataFieldInfo("max_time", EpidataFieldType.date),
+                EpidataFieldInfo(
+                    "min_time", 
+                    EpidataFieldType.date_or_epiweek,
+                    description="time_type"
+                ),
+                EpidataFieldInfo(
+                    "max_time", 
+                    EpidataFieldType.date_or_epiweek,
+                    description="time_type"
+                ),
                 EpidataFieldInfo("num_locations", EpidataFieldType.int),
                 EpidataFieldInfo("min_value", EpidataFieldType.float),
                 EpidataFieldInfo("max_value", EpidataFieldType.float),
