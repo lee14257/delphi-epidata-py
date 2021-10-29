@@ -18,6 +18,16 @@ def parse_api_week(value: Union[str, int, float, None]) -> Optional[date]:
     return cast(date, Week.fromstring(str(value)).startdate())
 
 
+def parse_api_date_or_week(value: Union[str, int, float, None]) -> Optional[date]:
+    if value is None:
+        return None
+    v = str(value)
+    if len(v) == 6:
+        return cast(date, Week.fromstring(v).startdate())
+    if len(v) == 8:
+        return datetime.strptime(v, "%Y%m%d").date()
+
+
 def fields_to_predicate(fields: Optional[Iterable[str]] = None) -> Callable[[str], bool]:
     if not fields:
         return lambda _: True
