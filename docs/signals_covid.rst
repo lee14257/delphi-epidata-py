@@ -4,21 +4,34 @@ Fetching Data
 Signals
 -------
 
-This package provides a key function to obtain any signal of interest as a
-Pandas data frame. Detailed examples are provided in the :ref:`usage examples
-<getting-started>`.
+This package provides a key function to obtain any signal of interest and parse it in 4 different formats. 
+Detailed examples are provided in the :ref:`usage examples <getting-started>`.
+
+A signal is obtained by requesting an API call to an Epidata endpoint with defined parameters. 
+An EpiDataCall object is first obtained using the functions from the Endpoint fetcher class below. 
+This object will contain the appropriate  endpoint URL and the parameters required to make the API request. 
 
 
-
-Sometimes you would like to work with multiple signals -- for example, to obtain
-several signals at every location, as part of building models of features at
-each location. For convenience, the package provides a function to produce a
-single data frame containing multiple signals at each location.
+.. autoclass:: delphi_epidata.request.AEpiDataEndpoints()
+    :members:
 
 
+Output Data
+--------
 
-                  
-Metadata
+An EpiDataCall object can be used to make an API request and parse the resulting signal in 
+4 different formats (Classic, JSON, CSV, and Pandas DataFrame)
+
+.. autofunction:: delphi_epidata.request.EpiDataCall.classic
+
+.. autofunction:: delphi_epidata.request.EpiDataCall.json
+
+.. autofunction:: delphi_epidata.request.EpiDataCall.csv
+
+.. autofunction:: delphi_epidata.request.EpiDataCall.df
+
+
+COVIDcast Metadata
 --------
 
 Many data sources and signals are available, so one can also obtain a data frame

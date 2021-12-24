@@ -490,7 +490,28 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         issues: Optional[EpiRangeParam] = None,
         lag: Optional[int] = None,
     ) -> CALL_TYPE:
-        """Fetch Delphi's COVID-19 Surveillance Streams"""
+        """
+        Fetch Delphi's COVID-19 Surveillance Streams
+
+        Obtains a data frame of metadata describing all publicly available data
+        streams from the COVIDcast API. See the `data source and signals
+        documentation
+        <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_signals.html>`_
+        for descriptions of the available sources.
+
+        :returns: A `EpiDataCall` object containing the following information:
+
+            ``data_source``
+                Data source name.
+
+            ``signal``
+                Signal name.
+
+        :param data_source: String identifying the data source to query, such as ``"fb-survey"``.
+
+        :param signals: String identifying the signal from that source to query, such as ``"smoothed_cli"``.
+        
+        """
         if any((v is None for v in (data_source, signals, time_type, geo_type, time_values, geo_values))):
             raise InvalidArgumentException(
                 "`data_source`, `signals`, `time_type`, `geo_type`, `time_values`, and `geo_values` are all required"

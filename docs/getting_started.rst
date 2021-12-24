@@ -6,8 +6,88 @@ Getting Started
 Overview
 --------------
 
-Data Sources
+This package provides access to data from various Epidata API endpoints including COVIDcast, 
+which provides numerous COVID-related data streams, updated daily. 
+
+Epidata Endpoints Overview
 --------------
+
+**COVID-19 Data**
+
+- `covidcast <https://cmu-delphi.github.io/delphi-epidata/api/covidcast.html>`_
+      Delphi’s COVID-19 surveillance streams.
+- `covidcast_meta <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_meta.html>`_
+      Metadata for Delphi’s COVID-19 surveillance streams.
+- `covid_hosp <https://cmu-delphi.github.io/delphi-epidata/api/covid_hosp.html>`_
+      COVID-19 Reported Patient Impact and Hospital Capacity.
+- `covid_hosp_facility <https://cmu-delphi.github.io/delphi-epidata/api/covid_hosp_facility.html>`_
+      COVID-19 Reported Patient Impact and Hospital Capacity - Facility Lookup
+- `covid_hosp_facility_lookup <https://cmu-delphi.github.io/delphi-epidata/api/covid_hosp_facility.html>`_
+      COVID-19 Reported Patient Impact and Hospital Capacity by Facility
+- `covid_hosp_state_timeseries <https://cmu-delphi.github.io/delphi-epidata/api/covid_hosp.html>`_
+      COVID-19 Reported Patient Impact and Hospital Capacity by State Timeseries
+
+
+
+**Influenza Data**
+
+- `afhsb <https://cmu-delphi.github.io/delphi-epidata/api/afhsb.html>`_
+      TODO
+- `cdc <https://cmu-delphi.github.io/delphi-epidata/api/cdc.html>`_
+      CDC Page Hits   
+- `delphi <https://cmu-delphi.github.io/delphi-epidata/api/delphi.html>`_
+      Delphi’s Forecast 
+- `ecdc_ili <https://cmu-delphi.github.io/delphi-epidata/api/ecdc_ili.html>`_
+      ECDC ILI data from the ECDC website.
+- `flusurv <https://cmu-delphi.github.io/delphi-epidata/api/flusurv.html>`_
+      FluSurv-NET data (flu hospitaliation rates) from CDC.
+- `fluview <https://cmu-delphi.github.io/delphi-epidata/api/fluview.html>`_
+      Influenza-like illness (ILI) from U.S. Outpatient Influenza-like Illness Surveillance Network (ILINet).
+- `fluview_meta <https://cmu-delphi.github.io/delphi-epidata/api/fluview_meta.html>`_
+      Summary data about fluview.
+- `fluview_clinical <https://cmu-delphi.github.io/delphi-epidata/api/fluview_clinical.html>`_
+      FluView Clinical
+- `gft <https://cmu-delphi.github.io/delphi-epidata/api/gft.html>`_
+      Estimate of influenza activity based on volume of certain search queries. Google has discontinued Flu Trends, and this is now a static endpoint.
+- `ght <https://cmu-delphi.github.io/delphi-epidata/api/ght.html>`_
+      Google Health Trends data. Estimate of influenza activity based on volume of certain search queries.
+- `kcdc_ili <https://cmu-delphi.github.io/delphi-epidata/api/kcdc_ili.html>`_
+      KCDC ILI data from KCDC website.
+- `meta <https://cmu-delphi.github.io/delphi-epidata/api/meta.html>`_
+      Metadata for fluview, twitter, wiki, and delphi.
+- `meta_afhsb <https://cmu-delphi.github.io/delphi-epidata/api/meta_afhsb.html>`_
+      AFHSB Metadata
+- `nidss_flu <https://cmu-delphi.github.io/delphi-epidata/api/nidss_flu.html>`_
+      Outpatient ILI from Taiwan’s National Infectious Disease Statistics System (NIDSS).
+- `nowcast <https://cmu-delphi.github.io/delphi-epidata/api/nowcast.html>`_
+      A nowcast of U.S. national, regional, and state-level (weighted) percent ILI, available seven days (regionally) or five days (state-level) before the first ILINet report for the corresponding week.
+- `quidel <https://cmu-delphi.github.io/delphi-epidata/api/quidel.html>`_
+      Data provided by Quidel Corp., which contains flu lab test results.
+- `sensors <https://cmu-delphi.github.io/delphi-epidata/api/sensors.html>`_
+      Delphi’s Digital Surveillance Sensors
+- `twitter <https://cmu-delphi.github.io/delphi-epidata/api/twitter.html>`_
+      Estimate of influenza activity based on analysis of language used in tweets from HealthTweets.
+- `wiki <https://cmu-delphi.github.io/delphi-epidata/api/wiki.html>`_
+      Wikipedia Access Logs. Number of page visits for selected English, Influenza-related wikipedia articles.
+
+
+**Dengue Data**
+
+- `dengue_nowcast <https://cmu-delphi.github.io/delphi-epidata/api/dengue_nowcast.html>`_
+      Delphi’s Dengue Nowcast data
+- `dengue_sensors <https://cmu-delphi.github.io/delphi-epidata/api/dengue_sensors.html>`_
+      Delphi’s Dengue Digital Surveillance Sensors
+- `nidss_dengue <https://cmu-delphi.github.io/delphi-epidata/api/nidss_dengue.html>`_
+      Counts of confirmed dengue cases from Taiwan’s NIDSS.
+- `paho_dengue <https://cmu-delphi.github.io/delphi-epidata/api/paho_dengue.html>`_
+      PAHO Dengue
+
+**Norovirus Data**
+
+- `meta_norostat <https://cmu-delphi.github.io/delphi-epidata/api/meta_norostat.html>`_
+      NoroSTAT Metadata
+- `norostat <https://cmu-delphi.github.io/delphi-epidata/api/norostat.html>`_
+      Suspected and confirmed norovirus outbreaks reported by state health departments to the CDC.
 
 
 
