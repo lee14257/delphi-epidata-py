@@ -1,5 +1,3 @@
-.. _getting-started:
-
 Getting Started
 ===============
 
@@ -9,8 +7,11 @@ Overview
 This package provides access to data from various Epidata API endpoints including COVIDcast, 
 which provides numerous COVID-related data streams, updated daily. 
 
-Epidata Endpoints Overview
+.. _epidata-endpoints:
+
+Epidata Endpoints
 --------------
+<TODO: Add Description>
 
 **COVID-19 Data**
 
@@ -18,8 +19,6 @@ Epidata Endpoints Overview
       Delphi’s COVID-19 surveillance streams.
 - `covidcast_meta <https://cmu-delphi.github.io/delphi-epidata/api/covidcast_meta.html>`_
       Metadata for Delphi’s COVID-19 surveillance streams.
-- `covid_hosp <https://cmu-delphi.github.io/delphi-epidata/api/covid_hosp.html>`_
-      COVID-19 Reported Patient Impact and Hospital Capacity.
 - `covid_hosp_facility <https://cmu-delphi.github.io/delphi-epidata/api/covid_hosp_facility.html>`_
       COVID-19 Reported Patient Impact and Hospital Capacity - Facility Lookup
 - `covid_hosp_facility_lookup <https://cmu-delphi.github.io/delphi-epidata/api/covid_hosp_facility.html>`_
@@ -33,6 +32,8 @@ Epidata Endpoints Overview
 
 - `afhsb <https://cmu-delphi.github.io/delphi-epidata/api/afhsb.html>`_
       TODO
+- `meta_afhsb <https://cmu-delphi.github.io/delphi-epidata/api/meta_afhsb.html>`_
+      AFHSB Metadata
 - `cdc <https://cmu-delphi.github.io/delphi-epidata/api/cdc.html>`_
       CDC Page Hits   
 - `delphi <https://cmu-delphi.github.io/delphi-epidata/api/delphi.html>`_
@@ -55,8 +56,6 @@ Epidata Endpoints Overview
       KCDC ILI data from KCDC website.
 - `meta <https://cmu-delphi.github.io/delphi-epidata/api/meta.html>`_
       Metadata for fluview, twitter, wiki, and delphi.
-- `meta_afhsb <https://cmu-delphi.github.io/delphi-epidata/api/meta_afhsb.html>`_
-      AFHSB Metadata
 - `nidss_flu <https://cmu-delphi.github.io/delphi-epidata/api/nidss_flu.html>`_
       Outpatient ILI from Taiwan’s National Infectious Disease Statistics System (NIDSS).
 - `nowcast <https://cmu-delphi.github.io/delphi-epidata/api/nowcast.html>`_
@@ -90,8 +89,52 @@ Epidata Endpoints Overview
       Suspected and confirmed norovirus outbreaks reported by state health departments to the CDC.
 
 
+.. _getting-started:
 
 Basic examples
+--------------
+To obtain smoothed estimates of COVID-like illness from our symptom survey,
+distributed through Facebook, for every county in the United States between
+2020-05-01 and 2020-05-07:
+
+>>> from datetime import date
+>>> from delphi_epidata.request import Epidata, EpiRange
+>>> apicall = Epidata.covidcast("fb-survey", "smoothed_cli", 
+...                              "day", "county", 
+...                              EpiRange(20200501, 20200507), "*")
+>>> data = apicall.df()
+>>> data.head()
+      source	signal	geo_type	geo_value	time_type	time_value	issue	lag	value	stderr	sample_size	direction	missing_value	missing_stderr	missing_sample_size
+0	fb-survey	smoothed_cli	county	01000	day	2020-05-01	2020-09-03	125	0.825410	0.136003	1722	None	0	0	0
+1	fb-survey	smoothed_cli	county	01001	day	2020-05-01	2020-09-03	125	1.299425	0.967136	115	None	0	0	0
+2	fb-survey	smoothed_cli	county	01003	day	2020-05-01	2020-09-03	125	0.696597	0.324753	584	None	0	0	0
+3	fb-survey	smoothed_cli	county	01015	day	2020-05-01	2020-09-03	125	0.428271	0.548566	122	None	0	0	0
+4	fb-survey	smoothed_cli	county	01031	day	2020-05-01	2020-09-03	125	0.025579	0.360827	114	None	0	0	0
+
+Each row represents one observation in one county per day. The county FIPS
+code is given in the ``geo_value`` column, and the date is given in the ``time_value``
+column. The ``value`` is the requested signal - the smoothed
+estimate of the percentage of people with COVID-like illness based on the
+symptom surveys. The ``issue`` column indicates when this data was reported; in this case, the survey estimates for
+May 1st were updated on September 3rd based on new data, giving a ``lag`` of 125 days.
+See the :py:func:`delphi_epidata.request.Epidata.covidcast` documentation for further details on the returned
+columns.
+
+In the above code, the ``.df()`` function on the ``apicall`` variable generated a Pandas DataFrame. We can use 
+other :ref:`output functions <output-data>` to parse the requested API call in different formats. To parse the data
+into CSV format, we can use the following command:
+
+>>> data = apicall.csv()
+>>> print(data)
+geo_value,signal,source,geo_type,time_type,time_value,direction,issue,lag,missing_value,missing_stderr,missing_sample_size,value,stderr,sample_size
+01000,smoothed_cli,fb-survey,county,day,20200501,,20200903,125,0,0,0,0.8254101,0.1360033,1722.4551
+01001,smoothed_cli,fb-survey,county,day,20200501,,20200903,125,0,0,0,1.2994255,0.9671356,115.8025
+01003,smoothed_cli,fb-survey,county,day,20200501,,20200903,125,0,0,0,0.6965968,0.3247531,584.3194
+01015,smoothed_cli,fb-survey,county,day,20200501,,20200903,125,0,0,0,0.4282713,0.5485655,122.5577
+01031,smoothed_cli,fb-survey,county,day,20200501,,20200903,125,0,0,0,0.0255788,0.3608268,114.8318
+
+|
+Other examples
 --------------
 
 To obtain all available sources of epidemiological data, we can use the following command:

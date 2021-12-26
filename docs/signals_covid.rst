@@ -1,34 +1,102 @@
 Fetching Data
 =============
 
+Import Epidata object
+---------------------
+>>> from delphi_epidata.request import Epidata
+
 Signals
 -------
+This package provides various functions that can be called on the ``Epidata`` object to obtain any :ref:`Epidata endpoint <epidata-endpoints>` signals of interest. 
 
-This package provides a key function to obtain any signal of interest and parse it in 4 different formats. 
+The functions below will return an ``EpiDataCall`` object, which contains the appropriate URL 
+and parameters required to make an API request. The signal of interest can then be obtained in 5 different :ref:`output formats <output-data>`.
+
 Detailed examples are provided in the :ref:`usage examples <getting-started>`.
 
-A signal is obtained by requesting an API call to an Epidata endpoint with defined parameters. 
-An EpiDataCall object is first obtained using the functions from the Endpoint fetcher class below. 
-This object will contain the appropriate  endpoint URL and the parameters required to make the API request. 
+.. autofunction:: delphi_epidata.request.Epidata.covidcast
+|
+.. autofunction:: delphi_epidata.request.Epidata.covidcast_meta
+|
+.. autofunction:: delphi_epidata.request.Epidata.covid_hosp_facility
+|
+.. autofunction:: delphi_epidata.request.Epidata.covid_hosp_facility_lookup
+|
+.. autofunction:: delphi_epidata.request.Epidata.covid_hosp_state_timeseries
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_afhsb
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_meta_afhsb
+|
+.. autofunction:: delphi_epidata.request.Epidata.cdc
+|
+.. autofunction:: delphi_epidata.request.Epidata.delphi
+|
+.. autofunction:: delphi_epidata.request.Epidata.ecdc_ili
+|
+.. autofunction:: delphi_epidata.request.Epidata.flusurv
+|
+.. autofunction:: delphi_epidata.request.Epidata.fluview
+|
+.. autofunction:: delphi_epidata.request.Epidata.fluview_meta
+|
+.. autofunction:: delphi_epidata.request.Epidata.fluview_clinical
+|
+.. autofunction:: delphi_epidata.request.Epidata.gft
+|
+.. autofunction:: delphi_epidata.request.Epidata.ght
+|
+.. autofunction:: delphi_epidata.request.Epidata.kcdc_ili
+|
+.. autofunction:: delphi_epidata.request.Epidata.meta
+|
+.. autofunction:: delphi_epidata.request.Epidata.nidss_flu
+|
+.. autofunction:: delphi_epidata.request.Epidata.nowcast
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_quidel
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_sensors
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_twitter
+|
+.. autofunction:: delphi_epidata.request.Epidata.wiki
+|
+.. autofunction:: delphi_epidata.request.Epidata.dengue_nowcast
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_dengue_sensors
+|
+.. autofunction:: delphi_epidata.request.Epidata.nidss_dengue
+|
+.. autofunction:: delphi_epidata.request.Epidata.paho_dengue
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_meta_norostat
+|
+.. autofunction:: delphi_epidata.request.Epidata.pvt_norostat
 
 
-.. autoclass:: delphi_epidata.request.AEpiDataEndpoints()
-    :members:
+.. _output-data:
 
-
-Output Data
+Output Functions
 --------
 
-An EpiDataCall object can be used to make an API request and parse the resulting signal in 
-4 different formats (Classic, JSON, CSV, and Pandas DataFrame)
-
+The following functions can be called on an ``EpiDataCall`` object to make an API request and parse the signal in 
+5 different formats: 
+    - Classic
+    - JSON
+    - Pandas DataFrame
+    - CSV
+    - Iterator
+|
 .. autofunction:: delphi_epidata.request.EpiDataCall.classic
-
+|
 .. autofunction:: delphi_epidata.request.EpiDataCall.json
-
-.. autofunction:: delphi_epidata.request.EpiDataCall.csv
-
+|
 .. autofunction:: delphi_epidata.request.EpiDataCall.df
+|
+.. autofunction:: delphi_epidata.request.EpiDataCall.csv
+|
+.. autofunction:: delphi_epidata.request.EpiDataCall.iter
 
 
 COVIDcast Metadata
