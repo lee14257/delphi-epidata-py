@@ -490,7 +490,7 @@ class AEpiDataEndpoints(ABC, Generic[CALL_TYPE]):
         issues: Optional[EpiRangeParam] = None,
         lag: Optional[int] = None,
     ) -> CALL_TYPE:
-        """Download a Pandas data frame for one signal.
+        """Fetch Delphi's COVID-19 Surveillance Streams
 
         Obtains data for selected date ranges for all geographic regions of the
         United States. Available data sources and signals are documented in the

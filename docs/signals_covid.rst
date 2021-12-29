@@ -1,18 +1,16 @@
 Fetching Data
 =============
-
-Import Epidata object
----------------------
 >>> from delphi_epidata.request import Epidata
 
-Signals
--------
 This package provides various functions that can be called on the ``Epidata`` object to obtain any :ref:`Epidata endpoint <epidata-endpoints>` signals of interest. 
 
 The functions below will return an ``EpiDataCall`` object, which contains the appropriate URL 
 and parameters required to make an API request. The signal of interest can then be obtained in 5 different :ref:`output formats <output-data>`.
 
 Detailed examples are provided in the :ref:`usage examples <getting-started>`.
+
+COVIDcast Signals
+-----------------
 
 .. autofunction:: delphi_epidata.request.Epidata.covidcast
 |
@@ -24,6 +22,8 @@ Detailed examples are provided in the :ref:`usage examples <getting-started>`.
 |
 .. autofunction:: delphi_epidata.request.Epidata.covid_hosp_state_timeseries
 |
+Other Epidata Signals
+-----------------
 .. autofunction:: delphi_epidata.request.Epidata.pvt_afhsb
 |
 .. autofunction:: delphi_epidata.request.Epidata.pvt_meta_afhsb
@@ -99,8 +99,8 @@ The following functions can be called on an ``EpiDataCall`` object to make an AP
 .. autofunction:: delphi_epidata.request.EpiDataCall.iter
 
 
-COVIDcast Metadata
---------
+More on COVIDcast (TODO)
+------------------------
 
 Many data sources and signals are available, so one can also obtain a data frame
 of all signals and their associated metadata:
