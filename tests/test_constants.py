@@ -1,4 +1,4 @@
-from delphi_epidata import __version__
+from epidatpy import __version__
 
 
 def test_version() -> None:

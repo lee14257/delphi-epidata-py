@@ -16,7 +16,7 @@ Basic examples
 
 To obtain all available sources of epidemiological data, we can use the following command:
 
->>> from delphi_epidata.request import CovidcastEpidata, EpiRange
+>>> from epidatpy.request import CovidcastEpidata, EpiRange
 >>> epidata = CovidcastEpidata()
 >>> print(list(epidata.source_names))
 ['chng-cli', 'chng-covid', 'covid-act-now', 'doctor-visits', 'fb-survey', 'google-symptoms', 'hhs', 'hospital-admissions', 'indicator-combination-cases-deaths', 'jhu-csse', 'quidel-covid-ag', 'safegraph-weekly', 'usa-facts', 'ght', 'google-survey', 'indicator-combination-nmf', 'quidel-flu', 'safegraph-daily', 'nchs-mortality']
@@ -26,7 +26,7 @@ To obtain smoothed estimates of COVID-like illness from our symptom survey,
 distributed through Facebook (`fb-survey`), for every county in the United States between
 2020-05-01 and 2020-05-07:
 
->>> from delphi_epidata.request import EpiRange
+>>> from epidatpy.request import EpiRange
 >>> apicall = epidata[("fb-survey", "smoothed_cli")].call(    
 ...     'county', "*", EpiRange(20200501, 20200507),
 ... )
