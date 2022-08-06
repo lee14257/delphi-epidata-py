@@ -13,7 +13,13 @@ pip install epidatpy
 latest version
 
 ```sh
-pip install -e "git+https://github.com/cmu-delphi/epidatpy.git#egg=epidatpy"
+pip install -e "git+https://github.com/cmu-delphi/epidatpy.git"
+```
+
+old name version
+
+```sh
+pip install -e "git+https://github.com/cmu-delphi/epidatpy.git@delphi_epidata-before-rename"
 ```
 
 ## Usage
