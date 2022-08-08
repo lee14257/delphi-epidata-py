@@ -4,13 +4,11 @@
 
 ## Install
 
-Install from PyPi:
+**RENAME NOTICE (2022-08-05):** This package will be renamed to `epidatpy`. 
+Please adjust all references to the package name accordingly.
+For a short-term fix, the package can be used with the old name by installing with `ref="delphi_epidata-before-rename"`.
 
-```sh
-pip install delphi-epidata
-```
-
-latest version
+Install latest version:
 
 ```sh
 pip install -e "git+https://github.com/cmu-delphi/delphi-epidata-py.git#egg=delphi_epidata"
