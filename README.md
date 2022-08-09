@@ -13,13 +13,13 @@ pip install epidatpy
 latest version
 
 ```sh
-pip install -e "git+https://github.com/cmu-delphi/epidatpy.git"
+pip install -e "git+https://github.com/cmu-delphi/epidatpy.git#egg=epidatpy"
 ```
 
 old name version
 
 ```sh
-pip install -e "git+https://github.com/cmu-delphi/epidatpy.git@delphi_epidata-before-rename"
+pip install -e "git+https://github.com/cmu-delphi/epidatpy.git@delphi_epidata-before-rename#egg=delphi_epidata"
 ```
 
 ## Usage
@@ -67,7 +67,7 @@ The release consists of multiple steps which can be all done via the GitHub webs
 [mit-url]: https://opensource.org/licenses/MIT
 [github-actions-image]: https://github.com/cmu-delphi/epidatpy/workflows/ci/badge.svg
 [github-actions-url]: https://github.com/cmu-delphi/epidatpy/actions
-[pypi-image]: https://img.shields.io/pypi/v/delphi-epidata
-[pypi-url]: https://pypi.python.org/pypi/delphi-epidata/
-[docs-image]: https://readthedocs.org/projects/delphi-epidata/badge/?version=latest
-[docs-url]: https://delphi-epidata.readthedocs.io/en/latest/?badge=latest
+[pypi-image]: https://img.shields.io/pypi/v/epidatpy
+[pypi-url]: https://pypi.python.org/pypi/epidatpy/
+[docs-image]: https://readthedocs.org/projects/epidatpy/badge/?version=latest
+[docs-url]: https://epidatpy.readthedocs.io/en/latest/?badge=latest
