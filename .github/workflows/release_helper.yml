@@ -68,7 +68,7 @@ jobs:
           inv dist
       - uses: actions/upload-artifact@v2
         with:
-          name: delphi_epidata
+          name: epidatpy
       - name: Upload Release Asset
         uses: AButler/upload-release-assets@v2.0
         with:

@@ -2,12 +2,12 @@ Delphi Epi Data
 ===============
 
 This package provides Python access to the `Delphi Epidata API
-<https://cmu-delphi.github.io/delphi-epidata/api>`_ published by
+<https://cmu-delphi.github.io/delphi-epidata/>`_ published by
 the `Delphi group <https://delphi.cmu.edu>`_ at `Carnegie Mellon University
 <https://www.cmu.edu>`_.
 
 The package source code and bug tracker can be found `on GitHub
-<https://github.com/cmu-delphi/delphi-epidata-py>`_.
+<https://github.com/cmu-delphi/epidatpy>`_.
 
 
 .. note :: **You should consider subscribing** to the `API mailing list
@@ -29,12 +29,12 @@ Installation
 ------------
 
 This package is available on PyPI as `covidcast
-<https://pypi.org/project/delphi-epidata/>`_, and can be installed using ``pip`` or
+<https://pypi.org/project/epidatpy/>`_, and can be installed using ``pip`` or
 your favorite Python package manager:
 
 .. code-block:: sh
 
-   pip install delphi-epidata
+   pip install epidatpy
 
 The package requires `pandas <https://pandas.pydata.org/>`_ and `requests
 <https://requests.readthedocs.io/en/master/>`_; these should be installed

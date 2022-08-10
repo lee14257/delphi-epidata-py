@@ -24,7 +24,7 @@ Metadata
 Many data sources and signals are available, so one can also obtain a data frame
 of all signals and their associated metadata:
 
->>> from delphi_epidata.request import CovidcastEpidata
+>>> from epidatpy.request import CovidcastEpidata
 >>> covid_ds = CovidcastEpidata()
 >>> df_source = covid_ds.source_df
 >>> df_signal = covid_ds.signal_df
@@ -34,12 +34,12 @@ which has the property ``source_df`` and ``signal_df``, two data frames containi
 the information of all available sources and signals.
 More details of the two data frames are listed below.
 
-.. autoclass:: delphi_epidata.request.CovidcastDataSources()
+.. autoclass:: epidatpy.request.CovidcastDataSources()
     :members:
 
 More metadata statistics can also be obtained as follows:
 
->>> from delphi_epidata.request import Epidata
+>>> from epidatpy.request import Epidata
 >>> df = Epidata.covidcast_meta().df()
 
-.. autofunction:: delphi_epidata.request.Epidata.covidcast_meta()
+.. autofunction:: epidatpy.request.Epidata.covidcast_meta()

@@ -1,4 +1,4 @@
-# Delphi Epidata Python Client
+# Delphi Epidata Python Client `epidatpy`
 
 [![License: MIT][mit-image]][mit-url] [![Github Actions][github-actions-image]][github-actions-url] [![PyPi][pypi-image]][pypi-url] [![Read the Docs][docs-image]][docs-url]
 
@@ -11,7 +11,13 @@ For a short-term fix, the package can be used with the old name by installing wi
 Install latest version:
 
 ```sh
-pip install -e "git+https://github.com/cmu-delphi/delphi-epidata-py.git#egg=delphi_epidata"
+pip install -e "git+https://github.com/cmu-delphi/epidatpy.git#egg=epidatpy"
+```
+
+old name version
+
+```sh
+pip install -e "git+https://github.com/cmu-delphi/epidatpy.git@delphi_epidata-before-rename#egg=delphi_epidata"
 ```
 
 ## Usage
@@ -46,20 +52,20 @@ inv release  # upload the current version to pypi
 
 The release consists of multiple steps which can be all done via the GitHub website:
 
-1. Go to [create_release GitHub Action](https://github.com/cmu-delphi/delphi-epidata-py/actions/workflows/create_release.yml) and click the `Run workflow` button. Enter the next version number or one of the magic keywords (patch, minor, major) and hit the green `Run workflow` button.
-1. The action will prepare a new release and will end up with a new [Pull Request](https://github.com/cmu-delphi/delphi-epidata-py/pulls)
+1. Go to [create_release GitHub Action](https://github.com/cmu-delphi/epidatpy/actions/workflows/create_release.yml) and click the `Run workflow` button. Enter the next version number or one of the magic keywords (patch, minor, major) and hit the green `Run workflow` button.
+1. The action will prepare a new release and will end up with a new [Pull Request](https://github.com/cmu-delphi/epidatpy/pulls)
 1. Let the code owner review the PR and its changes and let the CI check whether everything builds successfully
 1. Once approved and merged, another GitHub action job starts which automatically will
    1. create a git tag
-   1. create another [Pull Request](https://github.com/cmu-delphi/delphi-epidata-py/pulls) to merge the changes back to the `dev` branch
-   1. create a [GitHub release](https://github.com/cmu-delphi/delphi-epidata-py/releases) with automatically derived release notes
+   1. create another [Pull Request](https://github.com/cmu-delphi/epidatpy/pulls) to merge the changes back to the `dev` branch
+   1. create a [GitHub release](https://github.com/cmu-delphi/epidatpy/releases) with automatically derived release notes
 1. Done
 
 [mit-image]: https://img.shields.io/badge/License-MIT-yellow.svg
 [mit-url]: https://opensource.org/licenses/MIT
-[github-actions-image]: https://github.com/cmu-delphi/delphi-epidata-py/workflows/ci/badge.svg
-[github-actions-url]: https://github.com/cmu-delphi/delphi-epidata-py/actions
-[pypi-image]: https://img.shields.io/pypi/v/delphi-epidata
-[pypi-url]: https://pypi.python.org/pypi/delphi-epidata/
-[docs-image]: https://readthedocs.org/projects/delphi-epidata/badge/?version=latest
-[docs-url]: https://delphi-epidata.readthedocs.io/en/latest/?badge=latest
+[github-actions-image]: https://github.com/cmu-delphi/epidatpy/workflows/ci/badge.svg
+[github-actions-url]: https://github.com/cmu-delphi/epidatpy/actions
+[pypi-image]: https://img.shields.io/pypi/v/epidatpy
+[pypi-url]: https://pypi.python.org/pypi/epidatpy/
+[docs-image]: https://readthedocs.org/projects/epidatpy/badge/?version=latest
+[docs-url]: https://epidatpy.readthedocs.io/en/latest/?badge=latest
