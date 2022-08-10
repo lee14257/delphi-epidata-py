@@ -2,7 +2,7 @@ Delphi Epi Data
 ===============
 
 This package provides Python access to the `Delphi Epidata API
-<https://cmu-delphi.github.io/delphi-epidata/api>`_ published by
+<https://cmu-delphi.github.io/delphi-epidata/>`_ published by
 the `Delphi group <https://delphi.cmu.edu>`_ at `Carnegie Mellon University
 <https://www.cmu.edu>`_.
 
