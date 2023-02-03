@@ -168,14 +168,14 @@ An ``EpiRange`` object can be also used to construct a range of epiweeks or date
 
 Basic examples
 --------------
+
 **COVIDcast**
 
 To obtain smoothed estimates of COVID-like illness from our symptom survey,
 distributed through Facebook, for every county in the United States between
 2020-05-01 and 2020-05-07:
 
->>> from datetime import date
->>> from delphi_epidata.request import Epidata, EpiRange
+>>> from epidatpy.request import Epidata, EpiRange
 >>> apicall = Epidata.covidcast("fb-survey", "smoothed_cli", 
 ...                              "day", "county", 
 ...                              EpiRange(20200501, 20200507), "*")
@@ -194,7 +194,7 @@ column. The ``value`` is the requested signal - the smoothed
 estimate of the percentage of people with COVID-like illness based on the
 symptom surveys. The ``issue`` column indicates when this data was reported; in this case, the survey estimates for
 May 1st were updated on September 3rd based on new data, giving a ``lag`` of 125 days.
-See the :py:func:`delphi_epidata.request.Epidata.covidcast` documentation for further details on the returned
+See the :py:func:`epidatpy.request.Epidata.covidcast` documentation for further details on the returned
 columns.
 
 In the above code, the ``.df()`` function on the ``apicall`` variable generated a Pandas DataFrame. We can use 
@@ -259,7 +259,6 @@ command:
  .
  }]
 
-Below are some other examples utilizing other Epidata endpoints and data sources.
 
 |
 
